@@ -6,7 +6,7 @@ import os
 ext_modules = [Extension(name="cutest.ccutest",
                          sources=[os.path.join("cutest", "ccutest.pyx")],
                          library_dirs=['/usr/local/lib/','/usr/local/lib/gcc/5/', '/usr/lib'],
-			 libraries=['gslcblas','gsl', 'cutest'])]
+			 libraries=['gsl','blas','lapack', 'cutest'])]
 
 setup(
     name = "CUTEst.py",
