@@ -231,9 +231,6 @@ cpdef loadCutestProb(char* name):
     cdef int iout=6
     cdef int io_buffer = 11
 
-    if os.path.isfile("OUTSDIF.d") == False:
-        raise AssertionError("File OUTSDIF.d not exist")
-
     FORTRAN_open(&funit, fname, &status)
 
     if status.value > 1 :
