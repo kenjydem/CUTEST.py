@@ -530,8 +530,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject
 
 static PyObject *__Pyx_GetBuiltinName(PyObject *name);
 
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
-
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
 #else
@@ -584,33 +582,24 @@ int __pyx_module_is_main_cutest__ccutest = 0;
 static PyObject *__pyx_builtin_AssertionError;
 static char __pyx_k_os[] = "os";
 static char __pyx_k_main[] = "__main__";
-static char __pyx_k_path[] = "path";
 static char __pyx_k_test[] = "__test__";
 static char __pyx_k_value[] = "value";
 static char __pyx_k_import[] = "__import__";
-static char __pyx_k_isfile[] = "isfile";
 static char __pyx_k_platform[] = "platform";
 static char __pyx_k_OUTSDIF_d[] = "OUTSDIF.d";
 static char __pyx_k_AssertionError[] = "AssertionError";
-static char __pyx_k_File_OUTSDIF_d_not_exist[] = "File OUTSDIF.d not exist";
 static char __pyx_k_Error_opening_file_OUTSDIF_d[] = "Error opening file OUTSDIF.d";
 static PyObject *__pyx_n_s_AssertionError;
 static PyObject *__pyx_kp_s_Error_opening_file_OUTSDIF_d;
-static PyObject *__pyx_kp_s_File_OUTSDIF_d_not_exist;
-static PyObject *__pyx_kp_s_OUTSDIF_d;
 static PyObject *__pyx_n_s_import;
-static PyObject *__pyx_n_s_isfile;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_os;
-static PyObject *__pyx_n_s_path;
 static PyObject *__pyx_n_s_platform;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_value;
 static PyObject *__pyx_pf_6cutest_7ccutest_loadCutestProb(CYTHON_UNUSED PyObject *__pyx_self, char *__pyx_v_name); /* proto */
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_tuple_;
-static PyObject *__pyx_tuple__2;
-static PyObject *__pyx_tuple__3;
 
 /* "cutest/ccutest.pyx":227
  * 
@@ -669,58 +658,12 @@ static PyObject *__pyx_f_6cutest_7ccutest_loadCutestProb(CYTHON_UNUSED char *__p
  *     cdef int iout=6
  *     cdef int io_buffer = 11             # <<<<<<<<<<<<<<
  * 
- *     if os.path.isfile("OUTSDIF.d") == False:
+ *     FORTRAN_open(&funit, fname, &status)
  */
   __pyx_v_io_buffer = 11;
 
   /* "cutest/ccutest.pyx":234
  *     cdef int io_buffer = 11
- * 
- *     if os.path.isfile("OUTSDIF.d") == False:             # <<<<<<<<<<<<<<
- *         raise AssertionError("File OUTSDIF.d not exist")
- * 
- */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_os); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_path); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_isfile); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, Py_False, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__pyx_t_3) {
-
-    /* "cutest/ccutest.pyx":235
- * 
- *     if os.path.isfile("OUTSDIF.d") == False:
- *         raise AssertionError("File OUTSDIF.d not exist")             # <<<<<<<<<<<<<<
- * 
- *     FORTRAN_open(&funit, fname, &status)
- */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AssertionError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_Raise(__pyx_t_1, 0, 0, 0);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-
-    /* "cutest/ccutest.pyx":234
- *     cdef int io_buffer = 11
- * 
- *     if os.path.isfile("OUTSDIF.d") == False:             # <<<<<<<<<<<<<<
- *         raise AssertionError("File OUTSDIF.d not exist")
- * 
- */
-  }
-
-  /* "cutest/ccutest.pyx":237
- *         raise AssertionError("File OUTSDIF.d not exist")
  * 
  *     FORTRAN_open(&funit, fname, &status)             # <<<<<<<<<<<<<<
  * 
@@ -728,38 +671,38 @@ static PyObject *__pyx_f_6cutest_7ccutest_loadCutestProb(CYTHON_UNUSED char *__p
  */
   FORTRAN_open((&__pyx_v_funit), __pyx_v_fname, (&__pyx_v_status));
 
-  /* "cutest/ccutest.pyx":239
+  /* "cutest/ccutest.pyx":236
  *     FORTRAN_open(&funit, fname, &status)
  * 
  *     if status.value > 1 :             # <<<<<<<<<<<<<<
  *         raise AssertionError("Error opening file OUTSDIF.d")
  * 
  */
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_status); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 239; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_status); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 239; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_1, Py_GT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 239; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_1, Py_GT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 239; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 236; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_3) {
 
-    /* "cutest/ccutest.pyx":240
+    /* "cutest/ccutest.pyx":237
  * 
  *     if status.value > 1 :
  *         raise AssertionError("Error opening file OUTSDIF.d")             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AssertionError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_AssertionError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-    /* "cutest/ccutest.pyx":239
+    /* "cutest/ccutest.pyx":236
  *     FORTRAN_open(&funit, fname, &status)
  * 
  *     if status.value > 1 :             # <<<<<<<<<<<<<<
@@ -868,20 +811,16 @@ static struct PyModuleDef __pyx_moduledef = {
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_AssertionError, __pyx_k_AssertionError, sizeof(__pyx_k_AssertionError), 0, 0, 1, 1},
   {&__pyx_kp_s_Error_opening_file_OUTSDIF_d, __pyx_k_Error_opening_file_OUTSDIF_d, sizeof(__pyx_k_Error_opening_file_OUTSDIF_d), 0, 0, 1, 0},
-  {&__pyx_kp_s_File_OUTSDIF_d_not_exist, __pyx_k_File_OUTSDIF_d_not_exist, sizeof(__pyx_k_File_OUTSDIF_d_not_exist), 0, 0, 1, 0},
-  {&__pyx_kp_s_OUTSDIF_d, __pyx_k_OUTSDIF_d, sizeof(__pyx_k_OUTSDIF_d), 0, 0, 1, 0},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
-  {&__pyx_n_s_isfile, __pyx_k_isfile, sizeof(__pyx_k_isfile), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_os, __pyx_k_os, sizeof(__pyx_k_os), 0, 0, 1, 1},
-  {&__pyx_n_s_path, __pyx_k_path, sizeof(__pyx_k_path), 0, 0, 1, 1},
   {&__pyx_n_s_platform, __pyx_k_platform, sizeof(__pyx_k_platform), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_value, __pyx_k_value, sizeof(__pyx_k_value), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_AssertionError = __Pyx_GetBuiltinName(__pyx_n_s_AssertionError); if (!__pyx_builtin_AssertionError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_AssertionError = __Pyx_GetBuiltinName(__pyx_n_s_AssertionError); if (!__pyx_builtin_AssertionError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -891,38 +830,16 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "cutest/ccutest.pyx":234
- *     cdef int io_buffer = 11
- * 
- *     if os.path.isfile("OUTSDIF.d") == False:             # <<<<<<<<<<<<<<
- *         raise AssertionError("File OUTSDIF.d not exist")
- * 
- */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_OUTSDIF_d); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_tuple_);
-  __Pyx_GIVEREF(__pyx_tuple_);
-
-  /* "cutest/ccutest.pyx":235
- * 
- *     if os.path.isfile("OUTSDIF.d") == False:
- *         raise AssertionError("File OUTSDIF.d not exist")             # <<<<<<<<<<<<<<
- * 
- *     FORTRAN_open(&funit, fname, &status)
- */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_File_OUTSDIF_d_not_exist); if (unlikely(!__pyx_tuple__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 235; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_tuple__2);
-  __Pyx_GIVEREF(__pyx_tuple__2);
-
-  /* "cutest/ccutest.pyx":240
+  /* "cutest/ccutest.pyx":237
  * 
  *     if status.value > 1 :
  *         raise AssertionError("Error opening file OUTSDIF.d")             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Error_opening_file_OUTSDIF_d); if (unlikely(!__pyx_tuple__3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 240; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_tuple__3);
-  __Pyx_GIVEREF(__pyx_tuple__3);
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Error_opening_file_OUTSDIF_d); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 237; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_tuple_);
+  __Pyx_GIVEREF(__pyx_tuple_);
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -1111,23 +1028,6 @@ static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
 #else
             "name '%.200s' is not defined", PyString_AS_STRING(name));
 #endif
-    }
-    return result;
-}
-
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
-    PyObject *result;
-#if CYTHON_COMPILING_IN_CPYTHON
-    result = PyDict_GetItem(__pyx_d, name);
-    if (likely(result)) {
-        Py_INCREF(result);
-    } else {
-#else
-    result = PyObject_GetItem(__pyx_d, name);
-    if (!result) {
-        PyErr_Clear();
-#endif
-        result = __Pyx_GetBuiltinName(name);
     }
     return result;
 }
