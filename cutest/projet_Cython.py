@@ -36,8 +36,6 @@ def sifdecoder(name):
  		raise AssertionError("File OUTSDIF.d not exist")
 	return libname
 
-def CUTEstModel(char* libname):
-	fortran_open(libname)
 	
 if __name__ == '__main__':
     import sys
