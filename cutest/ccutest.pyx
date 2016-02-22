@@ -230,12 +230,15 @@ cpdef loadCutestProb(char* name):
     cdef int status  # Exit flag from OPEN and CLOSE
     cdef int iout=6
     cdef int io_buffer = 11
+    cdef int n
+    cdef int m
 
     FORTRAN_open(&funit, fname, &status)
 
-    if status.value > 1 :
+    if status > 1 :
         raise AssertionError("Error opening file OUTSDIF.d")
 
-    
+    CUTEST_cdimen  ( &status, &funit, &n , &m )
 
+    print n,m
     

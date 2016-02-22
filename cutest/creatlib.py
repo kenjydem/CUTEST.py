@@ -21,9 +21,9 @@ name = sys.argv[1]
 pname, sif = name.split('.')
 libname = 'lib'+ pname
 subprocess.call(['sifdecoder', name])
-subprocess.call('gfortran -c -fPIC ELFUN.f EXTER.f GROUP.f RANGE.f',shell=True)
+subprocess.call(['gfortran','-c','-fPIC','ELFUN.f','EXTER.f','GROUP.f','RANGE.f'])
 subprocess.call([linker,sh_flags,"-o",libname+"."+ soname,"ELFUN.o","EXTER.o","GROUP.o","RANGE.o","-L"+ CUTEST_DIR+os.path.sep+"objects"+os.path.sep+CUTEST_ARCH+os.path.sep+"double"])
-subprocess.call('rm ELFUN.f EXTER.f GROUP.f RANGE.f ELFUN.o EXTER.o GROUP.o RANGE.o',shell=True)
+subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o'])
 if os.path.isfile("OUTSDIF.d") == False:
 	raise AssertionError("File OUTSDIF.d not exist")
 dir = os.getcwd()
