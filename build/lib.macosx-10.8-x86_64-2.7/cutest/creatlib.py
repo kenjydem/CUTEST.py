@@ -28,5 +28,5 @@ if os.path.isfile("OUTSDIF.d") == False:
 	raise AssertionError("File OUTSDIF.d not exist")
 dir = os.getcwd()
 os.chdir(dir[:-7])
-subprocess.call('python setup.py install',shell=True)
+subprocess.call(['python','setup.py','install'])
  	
