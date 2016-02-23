@@ -36,6 +36,5 @@ setup(
     cmdclass={'build_ext': build_ext},
     package_dir={"cutest": "cutest"},
     packages=["cutest"],
-    force=1,
     zip_safe=False
 )

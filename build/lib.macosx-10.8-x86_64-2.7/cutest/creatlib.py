@@ -21,8 +21,6 @@ elif platform == "darwin":
 elif platform == "win32":
     raise(ValueError, "Windows platforms are currently not supported")
 
-#problem = sys.argv[1]
-
 def compile_sif_problem(problem):
     """Decode SIF problem and compile shared library."""
     import tempfile
@@ -44,7 +42,7 @@ def compile_sif_problem(problem):
     exit_code = subprocess.call([fcompiler, "-c"] +  [src + ".f" for src in srcs])
 
     # Link library.
-    cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"]
+    cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"] + [src + ".o" for src in srcs]
     link_code = subprocess.call(cmd)
 
     subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o'])
