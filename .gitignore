@@ -3,6 +3,7 @@
 *.d
 *.pyc
 build/
+.gitignore
 
 # Compiled source #
 ###################
