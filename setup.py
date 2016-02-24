@@ -4,6 +4,7 @@ from Cython.Distutils import build_ext
 from cutest.creatlib import compile_sif_problem
 import os
 import sys
+import numpy
 
 dirlibs=[]
 libnames=[]
@@ -24,8 +25,9 @@ print dirlibs, libnames
 
 ext_modules = [Extension(name="cutest.ccutest",
                          sources=[os.path.join("cutest", "ccutest.pyx")],
-                         library_dirs=dirlibs,      #'/usr/local/lib/','/usr/lib'],
-			 libraries=libnames)]       # 'cutest'])]
+                         library_dirs=dirlibs, 
+			 include_dirs = [numpy.get_include()],
+                         libraries=libnames)] 
 
 setup(
     name = 'CUTEst.py',
@@ -36,5 +38,6 @@ setup(
     cmdclass={'build_ext': build_ext},
     package_dir={"cutest": "cutest"},
     packages=["cutest"],
-    zip_safe=False
-)
+    )
+#zip_safe=False
+#)
