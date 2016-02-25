@@ -2,7 +2,7 @@ import os
 import platform
 import numpy as np
 cimport numpy as np
-
+from libcpp cimport bool
 
 cdef extern from "/usr/local/include/cutest.h":
     ctypedef int      integer;
@@ -258,7 +258,6 @@ cpdef loadCutestProb(char* name):
     CUTEST_cdimen( &status, &funit, &nvar , &ncon )
     cutest_error(status)
     print nvar,ncon
-    
 
     cdef np.ndarray[double, ndim=1, mode='c' ] x = np.empty((nvar,), dtype = np.double)
     cdef np.ndarray[double, ndim=1, mode='c'] bl = np.empty((nvar,), dtype = np.double)
@@ -266,12 +265,13 @@ cpdef loadCutestProb(char* name):
     cdef np.ndarray[double, ndim=1, mode='c'] v = np.empty((ncon,), dtype = np.double) 
     cdef np.ndarray[double, ndim=1, mode='c'] cl = np.empty((ncon,), dtype = np.double)
     cdef np.ndarray[double, ndim=1, mode='c'] cu = np.empty((ncon,), dtype = np.double) 
-    cdef np.ndarray[bint, ndim=1, mode='c'] equatn = np.empty((ncon,), dtype = np.bool)
-    cdef np.ndarray[bint,ndim=1, mode='c'] linear = np.empty((ncon,), dtype = bool).astype(int) 
+    cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
+    cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
 
     cdef int const1=5
     cdef int const2=6
     cdef int const3=1
+
 
     if ncon > 0:
         CUTEST_csetup(&status, &funit, &const1, &const2, &nvar, &ncon, &x[0], &bl[0], &bu[0], &v[0], &cl[0], &cu[0], &equatn[0], &linear[0], &const3, &const3, &const3)
@@ -279,5 +279,42 @@ cpdef loadCutestProb(char* name):
         CUTEST_usetup( &status, &funit, &const1, &const2, &nvar, &x[0], &bl[0], &bu[0])   
    
     cutest_error(status)
+   
+    print 'equatn'
+    print equatn 
+
+    print 'linear'
+    print linear
+
+    cdef np.ndarray[long, ndim=1] lin = np.where(linear==1)[0] 
+    print 'variable lin:'
+    print lin 
+    cdef np.ndarray[long, ndim=1] nln = np.where(linear==0)[0]
     
-    print linear 
+    print 'var nln:'
+    print nln
+
+    cdef int nlin = np.sum(linear)
+    print 'var. nlin'
+    print nlin
+    cdef int nnln = ncon - nlin
+    print 'var. nnln'
+    print nnln
+    cdef int nnzh = 0
+    cdef int nnzj = 0
+
+    if ncon > 0:
+        CUTEST_cdimsh(&status, &nnzh)
+        CUTEST_cdimsj(&status, &nnzj)
+        nnzj -= nvar
+        print nnzj
+        print nnzh
+    else:
+        CUTEST_udimsh(&status, &nnzh)
+    cutest_error(status)
+
+    FORTRAN_close(&funit, &status)
+    cutest_error(status)
+
+    ###### UTILISATION DE NLPy ########
+
