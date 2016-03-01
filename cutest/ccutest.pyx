@@ -3,6 +3,8 @@ import platform
 import numpy as np
 cimport numpy as np
 from libcpp cimport bool
+from cutest.cutestconst import *
+from cutest.CUTEst import CUTEstModel
 
 cdef extern from "/usr/local/include/cutest.h":
     ctypedef int      integer;
@@ -237,7 +239,7 @@ cdef char* CUTEstException(int info):
         msg = 'evaluation error'
     else:
         msg = 'unknow error'
-    return msg        
+    print msg        
 
 cdef cutest_error(int info):
     if info > 0:
@@ -245,19 +247,31 @@ cdef cutest_error(int info):
 
 cpdef loadCutestProb(char* name):
     cdef int funit=42 # FORTRAN unit number for OUTSDIF.d
-    cdef char * fname="OUTSDIF.d"
+    #cdef char * fname="/Users/kenjydemeester/Desktop/BYRDSPHR/OUTSDIF.d"
     cdef int status  # Exit flag from OPEN and CLOSE
     cdef int iout=6
     cdef int io_buffer = 11
     cdef int nvar
     cdef int ncon
 
+    ######## Essai de charger le problème #####
+    # Decode and compile problem in temprary directory.
+
+    cdef char* pname = NULL
+    tmp = str.split(name)
+    if tmp[0][-4:] == ".SIF":
+        tmp = tmp[0][:-4]
+        pname = tmp
+    
+    cdef bytes path = pname
+    tmp = CUTEST_LIB+path+"/OUTSDIF.d"
+    cdef char* fname = tmp
+
     FORTRAN_open(&funit, fname, &status)
     cutest_error(status)
     
     CUTEST_cdimen( &status, &funit, &nvar , &ncon )
     cutest_error(status)
-    print nvar,ncon
 
     cdef np.ndarray[double, ndim=1, mode='c' ] x = np.empty((nvar,), dtype = np.double)
     cdef np.ndarray[double, ndim=1, mode='c'] bl = np.empty((nvar,), dtype = np.double)
@@ -280,26 +294,10 @@ cpdef loadCutestProb(char* name):
    
     cutest_error(status)
    
-    print 'equatn'
-    print equatn 
-
-    print 'linear'
-    print linear
-
     cdef np.ndarray[long, ndim=1] lin = np.where(linear==1)[0] 
-    print 'variable lin:'
-    print lin 
     cdef np.ndarray[long, ndim=1] nln = np.where(linear==0)[0]
-    
-    print 'var nln:'
-    print nln
-
     cdef int nlin = np.sum(linear)
-    print 'var. nlin'
-    print nlin
     cdef int nnln = ncon - nlin
-    print 'var. nnln'
-    print nnln
     cdef int nnzh = 0
     cdef int nnzj = 0
 
@@ -307,8 +305,6 @@ cpdef loadCutestProb(char* name):
         CUTEST_cdimsh(&status, &nnzh)
         CUTEST_cdimsj(&status, &nnzj)
         nnzj -= nvar
-        print nnzj
-        print nnzh
     else:
         CUTEST_udimsh(&status, &nnzh)
     cutest_error(status)
@@ -316,5 +312,24 @@ cpdef loadCutestProb(char* name):
     FORTRAN_close(&funit, &status)
     cutest_error(status)
 
+    prob = CUTEstModel(nvar, ncon, nnzj, nnzh, x,
+                     bl, bu, v, cl, cu,
+                     equatn, linear, pname)
+
+    
+    
+    return prob 
+    
     ###### UTILISATION DE NLPy ########
 
+cpdef cutest_cfn(int status, int nvar, int ncon, np.ndarray[double, ndim=1, mode='c' ] x,
+        double f, np.ndarray[double, ndim=1, mode='c' ] c):
+
+    CUTEST_cfn( &status, &nvar, &ncon, &x[0], &f, &c[0] )
+    return c, f
+
+cpdef double cutest_ufn(int status, int nvar,np.ndarray[double, ndim=1, mode='c' ] x, double f):
+
+    CUTEST_ufn( &status, &nvar, &x[0], &f)
+
+    return f

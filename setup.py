@@ -2,23 +2,30 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 from cutest.creatlib import compile_sif_problem
+import subprocess
 import os
 import sys
 import numpy
 
 dirlibs=[]
 libnames=[]
-print len(sys.argv)
 
-if len(sys.argv) == 1:
-    raise 'You have to specify a problem name' 
+if os.getenv('CUTESTLIB') is None:
+    raise NameError('You have to set an environment variable CUTESTLIB to specify where to register your problems')
+    sys.exit([1])
+
+if len(sys.argv) == 2:
+    raise NameError('You have to specify a problem name')
+    sys.exit([1])
 else:
     while len(sys.argv)!=2:
         pb=sys.argv.pop(2)
-        (tmpdir, libname)=compile_sif_problem(pb)
-        dirlibs.append(tmpdir)
+        (dirlib, libname)=compile_sif_problem(pb)
+        dirlibs.append(dirlib)
         libnames.append(libname[3:-6])
-
+        #cmd = 'DYLD_LIBRARY_PATH=' + dirlib + ':$DYLD_LIBRARY_PATH'
+        #print cmd
+        #subprocess.call(['export', cmd])
 dirlibs.append('/usr/local/lib/')
 libnames.append('cutest')
 print dirlibs, libnames

@@ -5,6 +5,8 @@ from sys import platform
 
 CUTEST_ARCH = os.getenv('MYARCH')
 CUTEST_DIR = os.getenv('CUTEST')
+CUTEST_LIB = os.getenv('CUTESTLIB')
+
 if CUTEST_DIR is None or CUTEST_ARCH is None:
     raise(KeyError, "Please check that CUTEST and MYARCH are set")
 cutest_libdir_double = os.path.join(CUTEST_DIR, "objects", CUTEST_ARCH, "double")
@@ -28,10 +30,15 @@ def compile_sif_problem(problem):
     cur_path = os.getcwd()
 
     # Decode and compile problem in temprary directory.
-    tmpdir = tempfile.mkdtemp()
-    os.chdir(tmpdir)
+    os.chdir(CUTEST_LIB) 
     if problem[-4:] == ".SIF":
         problem = problem[:-4]
+
+    directory = os.path.join(CUTEST_LIB,problem)
+
+    if not os.path.exists(directory):
+        os.makedirs(problem)
+    os.chdir(directory)    
     subprocess.call(['sifdecoder', problem])
     libname = "lib%s.%s" % (problem, soname)
 
@@ -51,8 +58,5 @@ def compile_sif_problem(problem):
         raise AssertionError("File OUTSDIF.d not exist")
 
     os.chdir(cur_path)
-    return (tmpdir, libname)
-#dir = os.getcwd()
-#os.chdir(dir[:-7])
-#subprocess.call(['python','setup.py','install'])
+    return (directory, libname)
  	
