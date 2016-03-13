@@ -28,16 +28,17 @@ class CUTEstModel(NLPModel) :
         
         directory = compile(name)
         fname = directory + "/OUTSDIF.d"
-        print directory
-        print fname
         from cutest.ccutest import *
         self.prob = Cutest(name, fname)
-        kwargs = {'x0':self.prob.x, 'pi0':self.prob.v, 'Lvar':self.prob.bl, 'Uvar':self.prob.bu, 'Lcon':self.prob.cl, 'Ucon':self.prob.cu} 
+        #print np.asarray(self.prob.x)
+        kwargs = {'x0':np.asarray(self.prob.x), 'pi0':np.asarray(self.prob.v), 'Lvar':np.asarray(self.prob.bl), 'Uvar':np.asarray(self.prob.bu), 'Lcon':np.asarray(self.prob.cl), 'Ucon':np.asarray(self.prob.cu)} 
+        print "ok"
         NLPModel.__init__(self, self.prob.n, self.prob.m, name, **kwargs)
+        print "ok"
         self.nnzj = self.prob.nnzj
         self.nnzh = self.prob.nnzh
-        self.equatn = self.prob.equatn
-        self._lin = self.prob.linear
+        #self.equatn = self.prob.equatn
+        #self._lin = self.prob.linear
         self._nlin = len(self.prob.lin)
         self.x = self.prob.x 
         self.c = np.zeros((self.prob.m,), dtype=np.double)
@@ -49,12 +50,12 @@ class CUTEstModel(NLPModel) :
         """ Evalue la fonction objective et les contraintes du problème:
         - x: Evaluation point (numpy array)
         """
-        print self.prob.ncon
+        print self.ncon
         if self.ncon > 0:
-            [c, f] = self.prob.cutest_cfn(self.prob.status, self.prob.n, self.prob.m, self.x, self.f, self.c)
+            [c, f] = cutest_cfn(self.status, self.n, self.m, x, self.f, self.c)
             return c,f    
         else:
-            return self.prob.cutest_ufn(self.prob.status, self.prob.n, self.x, self.f)
+            return cutest_ufn(self.status, self.n, x, self.f)
 
     # Evaluate objective gradient at x
     def grad(self, x, **kwargs):

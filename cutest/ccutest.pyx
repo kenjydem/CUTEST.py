@@ -229,11 +229,12 @@ cdef extern from "/usr/local/include/cutest.h":
 cdef class Cutest:
 
     cdef int funit, status, nvar, ncon, iout, io_buffer, nlin, nnln, nnzh, nnzj, const1, const2, const3 
-    cdef char* name, fname
+    cdef char* name, 
+    cdef char* fname
     cdef double[:] x, bl, bu, v, cl, cu
     cdef long[:] lin, nln
 
-    def __cinit__(self, char* name,char fname):
+    def __cinit__(self, char* name,char* fname):
         """
         Initialization of the class 
         """
@@ -242,11 +243,10 @@ cdef class Cutest:
         self.io_buffer = 11
         self.name = name
         self.fname = fname
-        FORTRAN_open(&self.funit, &self.fname, &self.status)
-        cutest_error()
-        
+        FORTRAN_open(&self.funit, self.fname, &self.status)
+        self.cutest_error()
         CUTEST_cdimen( &self.status, &self.funit, &self.nvar , &self.ncon )
-        cutest_error()
+        self.cutest_error()
         
         self.const1 = 5
         self.const2 = 6
@@ -259,8 +259,8 @@ cdef class Cutest:
         self.cl = np.empty((self.nvar,), dtype = np.double)
         self.cu = np.empty((self.nvar,), dtype = np.double)
         
-        cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
-        cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
+        cdef np.ndarray[logical, cast=True] equatn = np.arange(self.ncon, dtype='>i1')
+        cdef np.ndarray[logical, cast=True] linear = np.arange(self.ncon, dtype='>i1')
         
         if self.ncon > 0:
             CUTEST_csetup(&self.status, &self.funit, &self.const1, &self.const2, &self.nvar,
@@ -269,22 +269,14 @@ cdef class Cutest:
         else:
             CUTEST_usetup( &self.status, &self.funit, &self.const1, &self.const2, &self.nvar, &self.x[0], &self.bl[0], &self.bu[0])
         
-        cutest_error()
-
+        self.cutest_error()
+        
         self.lin = np.where(linear==1)[0]
         self.nln = np.where(linear==0)[0]
-        self.nlin = np.sum(self.linear)
+        self.nlin = np.sum(linear)
         self.nnln = self.ncon - self.nlin
         self.nnzh = 0
         self.nnzj = 0
-
-        if self.ncon > 0:
-            CUTEST_csetup(&self.status, &self.funit, &self.const1, &self.const2, &self.nvar,
-                    &self.ncon, &self.x[0], &self.bl[0], &self.bu[0], 
-                    &self.v[0], &self.cl[0], &self.cu[0], &equatn[0], &linear[0], &self.const3, &self.const3, &self.const3)
-        else:
-            CUTEST_usetup( &self.status, &self.funit, &self.const1, &self.const2, &self.nvar, &self.x[0], &self.bl[0], &self.bu[0])
-        cutest_error()
 
         if self.ncon > 0:
             CUTEST_cdimsh(&self.status, &self.nnzh)
@@ -292,22 +284,15 @@ cdef class Cutest:
             self.nnzj -= self.nvar
         else:
             CUTEST_udimsh(&self.status, &self.nnzh)
-        cutest_error()
-
-    def __dealloc__(self):
-        """
-        Close the loaded problem 
-        """
-        FORTRAN_close(&self.funit, &self.status)
-        #cutest_error()
+        self.cutest_error()
     
     def cutest_cfn(self, double[:] x, double f, double[:] c):
 
         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
         return c, f
-
+            
     def cutest_ufn(self, int status, double[:] x, double f):
-
+    
         CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
         return f
 
@@ -316,10 +301,62 @@ cdef class Cutest:
 
         if self.status > 1:
             if self.status == 1:
-                printf('memory allocation error')
+                print('memory allocation error')
             elif self.status == 2:
-                printf('array bound error')
+                print('array bound error')
             elif self.status == 3:
-                printf('evaluation error')
+                print('evaluation error')
             else:
-                printf('unknow error')
+                print('unknow error')
+
+    def __dealloc__(self):
+        """
+        Close the loaded problem
+        """
+        FORTRAN_close(&self.funit, &self.status)
+        self.cutest_error()
+
+#########Interface properties#########################
+
+    property x:
+        def __get__(self):
+            """x getter"""
+            return self.x
+        def __set__(self, val):
+            self.x = val
+    property v: 
+        def __get__(self):
+            return self.v
+
+    property bl:
+        def __get__(self):
+            return self.bl
+
+    property bu:
+        def __get__(self):
+            return self.bu
+
+    property cl:
+        def __get__(self):
+            return self.cl
+
+    property cu:
+        def __get__(self):
+            return self.cu
+
+    property n:
+        def __get__(self):
+            return self.n
+
+    property m:
+        def __get__(self):
+            return self.m
+
+    property nnzj:
+        def __get__(self):
+            return self.nnzj
+
+    property status:
+        def __get__(self):
+            return self.status
+
