@@ -1,5 +1,5 @@
 #*-coding:Utf-8 -*
-
+import os
 import sys
 import numpy as np
 from nlp.model.nlpmodel import NLPModel
@@ -30,9 +30,10 @@ class CUTEstModel(NLPModel) :
         fname = directory + "/OUTSDIF.d"
         from cutest.ccutest import *
         self.prob = Cutest(name, fname)
+        print self.prob.x
+        print type(self.prob.x)
         #print np.asarray(self.prob.x)
-        kwargs = {'x0':np.asarray(self.prob.x), 'pi0':np.asarray(self.prob.v), 'Lvar':np.asarray(self.prob.bl), 'Uvar':np.asarray(self.prob.bu), 'Lcon':np.asarray(self.prob.cl), 'Ucon':np.asarray(self.prob.cu)} 
-        print "ok"
+        kwargs = {'x0':self.prob.x, 'pi0':self.prob.v, 'Lvar':self.prob.bl, 'Uvar':self.prob.bu, 'Lcon':self.prob.cl, 'Ucon':self.prob.cu} 
         NLPModel.__init__(self, self.prob.n, self.prob.m, name, **kwargs)
         print "ok"
         self.nnzj = self.prob.nnzj

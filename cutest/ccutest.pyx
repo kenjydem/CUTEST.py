@@ -321,28 +321,28 @@ cdef class Cutest:
     property x:
         def __get__(self):
             """x getter"""
-            return self.x
+            return np.asarray(self.x)
         def __set__(self, val):
             self.x = val
     property v: 
         def __get__(self):
-            return self.v
+            return np.asarray(self.v)
 
     property bl:
         def __get__(self):
-            return self.bl
+            return np.asarray(self.bl)
 
     property bu:
         def __get__(self):
-            return self.bu
+            return np.asarray(self.bu)
 
     property cl:
         def __get__(self):
-            return self.cl
+            return np.asarray(self.cl)
 
     property cu:
         def __get__(self):
-            return self.cu
+            return np.asarray(self.cu)
 
     property n:
         def __get__(self):
