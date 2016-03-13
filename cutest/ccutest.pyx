@@ -2,9 +2,7 @@ import os
 import platform
 import numpy as np
 cimport numpy as np
-from libcpp cimport bool
-from cutest.cutestconst import *
-from cutest.CUTEst import CUTEstModel
+
 
 cdef extern from "/usr/local/include/cutest.h":
     ctypedef int      integer;
@@ -228,108 +226,100 @@ cdef extern from "/usr/local/include/cutest.h":
 
 #######Cython interface#########################
 
-cdef char* CUTEstException(int info):
-    """Analyse error return from C function """
-    cdef char* msg
-    if info == 1:
-        msg = 'memory allocation error'
-    elif info == 2:
-        msg = 'array bound error'
-    elif info == 3:
-        msg = 'evaluation error'
-    else:
-        msg = 'unknow error'
-    print msg        
+cdef class Cutest:
 
-cdef cutest_error(int info):
-    if info > 0:
-        CUTEstException(info)
+    cdef int funit, status, nvar, ncon, iout, io_buffer, nlin, nnln, nnzh, nnzj, const1, const2, const3 
+    cdef char* name, fname
+    cdef double[:] x, bl, bu, v, cl, cu
+    cdef long[:] lin, nln
 
-cpdef loadCutestProb(char* name):
-    cdef int funit=42 # FORTRAN unit number for OUTSDIF.d
-    #cdef char * fname="/Users/kenjydemeester/Desktop/BYRDSPHR/OUTSDIF.d"
-    cdef int status  # Exit flag from OPEN and CLOSE
-    cdef int iout=6
-    cdef int io_buffer = 11
-    cdef int nvar
-    cdef int ncon
+    def __cinit__(self, char* name,char fname):
+        """
+        Initialization of the class 
+        """
+        self.funit = 42 # FORTRAN unit number for OUTSDIF.d
+        self.iout = 6
+        self.io_buffer = 11
+        self.name = name
+        self.fname = fname
+        FORTRAN_open(&self.funit, &self.fname, &self.status)
+        cutest_error()
+        
+        CUTEST_cdimen( &self.status, &self.funit, &self.nvar , &self.ncon )
+        cutest_error()
+        
+        self.const1 = 5
+        self.const2 = 6
+        self.const3 = 1
+      
+        self.x = np.empty((self.nvar,), dtype = np.double)
+        self.bl = np.empty((self.nvar,), dtype = np.double)
+        self.bu = np.empty((self.nvar,), dtype = np.double)
+        self.v = np.empty((self.nvar,), dtype = np.double)
+        self.cl = np.empty((self.nvar,), dtype = np.double)
+        self.cu = np.empty((self.nvar,), dtype = np.double)
+        
+        cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
+        cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
+        
+        if self.ncon > 0:
+            CUTEST_csetup(&self.status, &self.funit, &self.const1, &self.const2, &self.nvar,
+                            &self.ncon, &self.x[0], &self.bl[0], &self.bu[0],
+                            &self.v[0], &self.cl[0], &self.cu[0], &equatn[0], &linear[0], &self.const3, &self.const3, &self.const3)
+        else:
+            CUTEST_usetup( &self.status, &self.funit, &self.const1, &self.const2, &self.nvar, &self.x[0], &self.bl[0], &self.bu[0])
+        
+        cutest_error()
 
-    ######## Essai de charger le problème #####
-    # Decode and compile problem in temprary directory.
+        self.lin = np.where(linear==1)[0]
+        self.nln = np.where(linear==0)[0]
+        self.nlin = np.sum(self.linear)
+        self.nnln = self.ncon - self.nlin
+        self.nnzh = 0
+        self.nnzj = 0
 
-    cdef char* pname = NULL
-    tmp = str.split(name)
-    if tmp[0][-4:] == ".SIF":
-        tmp = tmp[0][:-4]
-        pname = tmp
+        if self.ncon > 0:
+            CUTEST_csetup(&self.status, &self.funit, &self.const1, &self.const2, &self.nvar,
+                    &self.ncon, &self.x[0], &self.bl[0], &self.bu[0], 
+                    &self.v[0], &self.cl[0], &self.cu[0], &equatn[0], &linear[0], &self.const3, &self.const3, &self.const3)
+        else:
+            CUTEST_usetup( &self.status, &self.funit, &self.const1, &self.const2, &self.nvar, &self.x[0], &self.bl[0], &self.bu[0])
+        cutest_error()
+
+        if self.ncon > 0:
+            CUTEST_cdimsh(&self.status, &self.nnzh)
+            CUTEST_cdimsj(&self.status, &self.nnzj)
+            self.nnzj -= self.nvar
+        else:
+            CUTEST_udimsh(&self.status, &self.nnzh)
+        cutest_error()
+
+    def __dealloc__(self):
+        """
+        Close the loaded problem 
+        """
+        FORTRAN_close(&self.funit, &self.status)
+        #cutest_error()
     
-    cdef bytes path = pname
-    tmp = CUTEST_LIB+path+"/OUTSDIF.d"
-    cdef char* fname = tmp
+    def cutest_cfn(self, double[:] x, double f, double[:] c):
 
-    FORTRAN_open(&funit, fname, &status)
-    cutest_error(status)
-    
-    CUTEST_cdimen( &status, &funit, &nvar , &ncon )
-    cutest_error(status)
+        CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
+        return c, f
 
-    cdef np.ndarray[double, ndim=1, mode='c' ] x = np.empty((nvar,), dtype = np.double)
-    cdef np.ndarray[double, ndim=1, mode='c'] bl = np.empty((nvar,), dtype = np.double)
-    cdef np.ndarray[double, ndim=1, mode='c'] bu = np.empty((nvar,), dtype = np.double) 
-    cdef np.ndarray[double, ndim=1, mode='c'] v = np.empty((ncon,), dtype = np.double) 
-    cdef np.ndarray[double, ndim=1, mode='c'] cl = np.empty((ncon,), dtype = np.double)
-    cdef np.ndarray[double, ndim=1, mode='c'] cu = np.empty((ncon,), dtype = np.double) 
-    cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
-    cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
+    def cutest_ufn(self, int status, double[:] x, double f):
 
-    cdef int const1=5
-    cdef int const2=6
-    cdef int const3=1
+        CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
+        return f
 
+    def cutest_error(self):
+        """Analyse error return from C function """
 
-    if ncon > 0:
-        CUTEST_csetup(&status, &funit, &const1, &const2, &nvar, &ncon, &x[0], &bl[0], &bu[0], &v[0], &cl[0], &cu[0], &equatn[0], &linear[0], &const3, &const3, &const3)
-    else:
-        CUTEST_usetup( &status, &funit, &const1, &const2, &nvar, &x[0], &bl[0], &bu[0])   
-   
-    cutest_error(status)
-   
-    cdef np.ndarray[long, ndim=1] lin = np.where(linear==1)[0] 
-    cdef np.ndarray[long, ndim=1] nln = np.where(linear==0)[0]
-    cdef int nlin = np.sum(linear)
-    cdef int nnln = ncon - nlin
-    cdef int nnzh = 0
-    cdef int nnzj = 0
-
-    if ncon > 0:
-        CUTEST_cdimsh(&status, &nnzh)
-        CUTEST_cdimsj(&status, &nnzj)
-        nnzj -= nvar
-    else:
-        CUTEST_udimsh(&status, &nnzh)
-    cutest_error(status)
-
-    FORTRAN_close(&funit, &status)
-    cutest_error(status)
-
-    prob = CUTEstModel(nvar, ncon, nnzj, nnzh, x,
-                     bl, bu, v, cl, cu,
-                     equatn, linear, pname)
-
-    
-    
-    return prob 
-    
-    ###### UTILISATION DE NLPy ########
-
-cpdef cutest_cfn(int status, int nvar, int ncon, np.ndarray[double, ndim=1, mode='c' ] x,
-        double f, np.ndarray[double, ndim=1, mode='c' ] c):
-
-    CUTEST_cfn( &status, &nvar, &ncon, &x[0], &f, &c[0] )
-    return c, f
-
-cpdef double cutest_ufn(int status, int nvar,np.ndarray[double, ndim=1, mode='c' ] x, double f):
-
-    CUTEST_ufn( &status, &nvar, &x[0], &f)
-
-    return f
+        if self.status > 1:
+            if self.status == 1:
+                printf('memory allocation error')
+            elif self.status == 2:
+                printf('array bound error')
+            elif self.status == 3:
+                printf('evaluation error')
+            else:
+                printf('unknow error')

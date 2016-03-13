@@ -3,7 +3,7 @@
 import sys
 import numpy as np
 from nlp.model.nlpmodel import NLPModel
-from cutest.ccutest import cutest_cfn,cutest_ufn
+from tools import compile
 
 class CUTEstModel(NLPModel) :
     """Classe définissant un problème :
@@ -22,17 +22,25 @@ class CUTEstModel(NLPModel) :
     - name : name of the problem 
     """
 
-    def __init__(self, n, m, nnzj, nnzh, x, bl, bu, v,
-                  cl, cu, equatn, linear, name) :
-        kwargs = {'x0':x, 'pi0':v, 'Lvar':bl, 'Uvar':bu, 'Lcon':cl, 'Ucon':cu} 
-        NLPModel.__init__(self, n, m, name, **kwargs)
-        self.nnzj = nnzj
-        self.nnzh = nnzh
-        self.equatn = equatn
-        self._lin = linear
-        self._nlin = len(self.lin)
-        self.x = x 
-        self.c = np.zeros((m,), dtype=np.double)
+    def __init__(self, name):
+        if name[-4:] == ".SIF":
+            name = name[:-4]
+        
+        directory = compile(name)
+        fname = directory + "/OUTSDIF.d"
+        print directory
+        print fname
+        from cutest.ccutest import *
+        self.prob = Cutest(name, fname)
+        kwargs = {'x0':self.prob.x, 'pi0':self.prob.v, 'Lvar':self.prob.bl, 'Uvar':self.prob.bu, 'Lcon':self.prob.cl, 'Ucon':self.prob.cu} 
+        NLPModel.__init__(self, self.prob.n, self.prob.m, name, **kwargs)
+        self.nnzj = self.prob.nnzj
+        self.nnzh = self.prob.nnzh
+        self.equatn = self.prob.equatn
+        self._lin = self.prob.linear
+        self._nlin = len(self.prob.lin)
+        self.x = self.prob.x 
+        self.c = np.zeros((self.prob.m,), dtype=np.double)
         self.f = 0
         self.status = 0
      
@@ -41,10 +49,12 @@ class CUTEstModel(NLPModel) :
         """ Evalue la fonction objective et les contraintes du problème:
         - x: Evaluation point (numpy array)
         """
-        if self.m > 0:
-             [self.c, self.f] = cutest_cfn(self.status, self.n, self.m, x, self.f, self.c)
+        print self.prob.ncon
+        if self.ncon > 0:
+            [c, f] = self.prob.cutest_cfn(self.prob.status, self.prob.n, self.prob.m, self.x, self.f, self.c)
+            return c,f    
         else:
-            self.f = cutest_ufn(self.status, self.n, x, self.f)
+            return self.prob.cutest_ufn(self.prob.status, self.prob.n, self.x, self.f)
 
     # Evaluate objective gradient at x
     def grad(self, x, **kwargs):
