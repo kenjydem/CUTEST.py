@@ -52,7 +52,9 @@ def compile(problem):
     cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"]+ [src + ".o" for src in srcs]
     link_code = subprocess.call(cmd)
 
-    os.system("gcc-5 -bundle -undefined dynamic_lookup -O3 -fPIC ~/Documents/Cours/Maitrise/MTH8408/CUTEST.py/build/temp.macosx-10.8-x86_64-2.7/cutest/ccutest.o -L/Users/kenjydemeester/Desktop/HS10 -L/usr/local/lib/ -L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib -lHS10 -lcutest -o ccutest.so")
+    cmd = "gcc-5 -bundle -undefined dynamic_lookup -O3 -fPIC ~/Documents/Cours/Maitrise/MTH8408/CUTEST.py/build/temp.macosx-10.8-x86_64-2.7/cutest/ccutest.o -L"
+    cmd = cmd + directory + " -L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib -l" + problem + " -lcutest -o ccutest.so"
+    os.system(cmd)
 
     subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o'])
 
