@@ -30,19 +30,15 @@ class CUTEstModel(NLPModel) :
         fname = directory + "/OUTSDIF.d"
         from cutest.ccutest import *
         self.prob = Cutest(name, fname)
-        print self.prob.x
-        print type(self.prob.x)
-        #print np.asarray(self.prob.x)
         kwargs = {'x0':self.prob.x, 'pi0':self.prob.v, 'Lvar':self.prob.bl, 'Uvar':self.prob.bu, 'Lcon':self.prob.cl, 'Ucon':self.prob.cu} 
-        NLPModel.__init__(self, self.prob.n, self.prob.m, name, **kwargs)
-        print "ok"
+        NLPModel.__init__(self, self.prob.nvar, self.prob.ncon, name, **kwargs)
         self.nnzj = self.prob.nnzj
         self.nnzh = self.prob.nnzh
         #self.equatn = self.prob.equatn
         #self._lin = self.prob.linear
         self._nlin = len(self.prob.lin)
         self.x = self.prob.x 
-        self.c = np.zeros((self.prob.m,), dtype=np.double)
+        self.c = np.zeros((self.prob.ncon,), dtype=np.double)
         self.f = 0
         self.status = 0
      
@@ -51,9 +47,9 @@ class CUTEstModel(NLPModel) :
         """ Evalue la fonction objective et les contraintes du problème:
         - x: Evaluation point (numpy array)
         """
-        print self.ncon
-        if self.ncon > 0:
-            [c, f] = cutest_cfn(self.status, self.n, self.m, x, self.f, self.c)
+        if self.n > 0:
+            #[c, f] = self.prob.cutest_cfn(self.status, self.n, self.m, x, self.f, self.c)
+            [c, f] = self.prob.cutest_cfn(x, self.f, self.c)
             return c,f    
         else:
             return cutest_ufn(self.status, self.n, x, self.f)

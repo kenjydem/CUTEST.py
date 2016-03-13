@@ -344,17 +344,25 @@ cdef class Cutest:
         def __get__(self):
             return np.asarray(self.cu)
 
-    property n:
+    property nvar:
         def __get__(self):
-            return self.n
+            return self.nvar
 
-    property m:
+    property ncon:
         def __get__(self):
-            return self.m
+            return self.ncon
 
     property nnzj:
         def __get__(self):
             return self.nnzj
+
+    property nnzh:
+        def __get__(self):
+            return self.nnzh
+
+    property lin:
+        def __get__(self):
+            return np.asarray(self.lin)
 
     property status:
         def __get__(self):
