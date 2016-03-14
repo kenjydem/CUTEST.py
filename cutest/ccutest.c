@@ -1616,6 +1616,7 @@ static char __pyx_k_obj[] = "obj";
 static char __pyx_k_sum[] = "sum";
 static char __pyx_k_base[] = "base";
 static char __pyx_k_file[] = "file";
+static char __pyx_k_grad[] = "grad";
 static char __pyx_k_main[] = "__main__";
 static char __pyx_k_mode[] = "mode";
 static char __pyx_k_name[] = "name";
@@ -1749,7 +1750,9 @@ static PyObject *__pyx_n_s_fname;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
+static PyObject *__pyx_n_s_g;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
+static PyObject *__pyx_n_s_grad;
 static PyObject *__pyx_kp_s_i1;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_import;
@@ -1796,8 +1799,9 @@ static PyObject *__pyx_n_s_x;
 static int __pyx_pf_6cutest_7ccutest_6Cutest___cinit__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self, char *__pyx_v_name, char *__pyx_v_fname); /* proto */
 static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self, __Pyx_memviewslice __pyx_v_x, double __pyx_v_f, __Pyx_memviewslice __pyx_v_c); /* proto */
 static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4cutest_ufn(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self, CYTHON_UNUSED int __pyx_v_status, __Pyx_memviewslice __pyx_v_x, double __pyx_v_f); /* proto */
-static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self); /* proto */
-static void __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_cofg(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self, __Pyx_memviewslice __pyx_v_x, double __pyx_v_f, __Pyx_memviewslice __pyx_v_g, logical __pyx_v_grad); /* proto */
+static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_8cutest_error(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self); /* proto */
+static void __pyx_pf_6cutest_7ccutest_6Cutest_10__dealloc__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1x___get__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self); /* proto */
 static int __pyx_pf_6cutest_7ccutest_6Cutest_1x_2__set__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self, PyObject *__pyx_v_val); /* proto */
 static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1v___get__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self); /* proto */
@@ -2999,12 +3003,13 @@ static int __pyx_pf_6cutest_7ccutest_6Cutest___cinit__(struct __pyx_obj_6cutest_
  *         self.cutest_error()
  * 
  *     def cutest_cfn(self, double[:] x, double f, double[:] c):             # <<<<<<<<<<<<<<
- * 
- *         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
+ *         """
+ *         Compute objective and constraints functions
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_3cutest_cfn(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6cutest_7ccutest_6Cutest_2cutest_cfn[] = "\n        Compute objective and constraints functions\n        ";
 static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_3cutest_cfn(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_x = { 0, 0, { 0 }, { 0 }, { 0 } };
   double __pyx_v_f;
@@ -3087,8 +3092,8 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("cutest_cfn", 0);
 
-  /* "cutest/ccutest.pyx":291
- *     def cutest_cfn(self, double[:] x, double f, double[:] c):
+  /* "cutest/ccutest.pyx":294
+ *         """
  * 
  *         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )             # <<<<<<<<<<<<<<
  *         return c, f
@@ -3102,7 +3107,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_
   } else if (unlikely(__pyx_t_1 >= __pyx_v_x.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_t_3 = 0;
   __pyx_t_2 = -1;
@@ -3112,11 +3117,11 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_
   } else if (unlikely(__pyx_t_3 >= __pyx_v_c.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   CUTEST_cfn((&__pyx_v_self->status), (&__pyx_v_self->nvar), (&__pyx_v_self->ncon), (&(*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_1 * __pyx_v_x.strides[0]) )))), (&__pyx_v_f), (&(*((double *) ( /* dim=0 */ (__pyx_v_c.data + __pyx_t_3 * __pyx_v_c.strides[0]) )))));
 
-  /* "cutest/ccutest.pyx":292
+  /* "cutest/ccutest.pyx":295
  * 
  *         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
  *         return c, f             # <<<<<<<<<<<<<<
@@ -3124,11 +3129,11 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_
  *     def cutest_ufn(self, int status, double[:] x, double f):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_c, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 292; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_c, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 292; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 292; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 295; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4);
@@ -3144,8 +3149,8 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_
  *         self.cutest_error()
  * 
  *     def cutest_cfn(self, double[:] x, double f, double[:] c):             # <<<<<<<<<<<<<<
- * 
- *         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
+ *         """
+ *         Compute objective and constraints functions
  */
 
   /* function exit code */
@@ -3163,7 +3168,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cutest_cfn(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":294
+/* "cutest/ccutest.pyx":297
  *         return c, f
  * 
  *     def cutest_ufn(self, int status, double[:] x, double f):             # <<<<<<<<<<<<<<
@@ -3204,16 +3209,16 @@ static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_5cutest_ufn(PyObject *__pyx_v
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_x)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("cutest_ufn", 1, 3, 3, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("cutest_ufn", 1, 3, 3, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_f)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("cutest_ufn", 1, 3, 3, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("cutest_ufn", 1, 3, 3, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "cutest_ufn") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "cutest_ufn") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -3222,13 +3227,13 @@ static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_5cutest_ufn(PyObject *__pyx_v
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_status = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_status == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_x = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[1]); if (unlikely(!__pyx_v_x.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_f = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_f == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_status = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_status == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_x = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[1]); if (unlikely(!__pyx_v_x.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_f = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_f == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("cutest_ufn", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("cutest_ufn", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("cutest.ccutest.Cutest.cutest_ufn", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3252,7 +3257,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4cutest_ufn(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("cutest_ufn", 0);
 
-  /* "cutest/ccutest.pyx":296
+  /* "cutest/ccutest.pyx":299
  *     def cutest_ufn(self, int status, double[:] x, double f):
  * 
  *         CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)             # <<<<<<<<<<<<<<
@@ -3267,25 +3272,25 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4cutest_ufn(struct __pyx_obj_
   } else if (unlikely(__pyx_t_1 >= __pyx_v_x.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 296; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 299; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   CUTEST_ufn((&__pyx_v_self->status), (&__pyx_v_self->nvar), (&(*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_1 * __pyx_v_x.strides[0]) )))), (&__pyx_v_f));
 
-  /* "cutest/ccutest.pyx":297
+  /* "cutest/ccutest.pyx":300
  * 
  *         CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
  *         return f             # <<<<<<<<<<<<<<
  * 
- *     def cutest_error(self):
+ *     def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 300; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":294
+  /* "cutest/ccutest.pyx":297
  *         return c, f
  * 
  *     def cutest_ufn(self, int status, double[:] x, double f):             # <<<<<<<<<<<<<<
@@ -3305,8 +3310,223 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4cutest_ufn(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":299
+/* "cutest/ccutest.pyx":302
  *         return f
+ * 
+ *     def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):             # <<<<<<<<<<<<<<
+ *         """ Compute objective gradient """
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_7cutest_cofg(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6cutest_7ccutest_6Cutest_6cutest_cofg[] = " Compute objective gradient ";
+static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_7cutest_cofg(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  __Pyx_memviewslice __pyx_v_x = { 0, 0, { 0 }, { 0 }, { 0 } };
+  double __pyx_v_f;
+  __Pyx_memviewslice __pyx_v_g = { 0, 0, { 0 }, { 0 }, { 0 } };
+  logical __pyx_v_grad;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("cutest_cofg (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x,&__pyx_n_s_f,&__pyx_n_s_g,&__pyx_n_s_grad,0};
+    PyObject* values[4] = {0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_x)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_f)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("cutest_cofg", 1, 4, 4, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
+        case  2:
+        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_g)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("cutest_cofg", 1, 4, 4, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
+        case  3:
+        if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_grad)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("cutest_cofg", 1, 4, 4, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "cutest_cofg") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+    }
+    __pyx_v_x = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[0]); if (unlikely(!__pyx_v_x.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_f = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_f == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_g = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[2]); if (unlikely(!__pyx_v_g.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_grad = __Pyx_PyObject_IsTrue(values[3]); if (unlikely((__pyx_v_grad == (logical)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("cutest_cofg", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 302; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("cutest.ccutest.Cutest.cutest_cofg", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_6cutest_7ccutest_6Cutest_6cutest_cofg(((struct __pyx_obj_6cutest_7ccutest_Cutest *)__pyx_v_self), __pyx_v_x, __pyx_v_f, __pyx_v_g, __pyx_v_grad);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_cofg(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self, __Pyx_memviewslice __pyx_v_x, double __pyx_v_f, __Pyx_memviewslice __pyx_v_g, logical __pyx_v_grad) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  Py_ssize_t __pyx_t_1;
+  int __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_8 = NULL;
+  PyObject *__pyx_t_9 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("cutest_cofg", 0);
+
+  /* "cutest/ccutest.pyx":305
+ *         """ Compute objective gradient """
+ * 
+ *         CUTEST_cofg( &self.status, &self.nvar, &x[0], &f, &g[0], &grad)             # <<<<<<<<<<<<<<
+ *         return f, np.asarray(g)
+ * 
+ */
+  __pyx_t_1 = 0;
+  __pyx_t_2 = -1;
+  if (__pyx_t_1 < 0) {
+    __pyx_t_1 += __pyx_v_x.shape[0];
+    if (unlikely(__pyx_t_1 < 0)) __pyx_t_2 = 0;
+  } else if (unlikely(__pyx_t_1 >= __pyx_v_x.shape[0])) __pyx_t_2 = 0;
+  if (unlikely(__pyx_t_2 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_2);
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __pyx_t_3 = 0;
+  __pyx_t_2 = -1;
+  if (__pyx_t_3 < 0) {
+    __pyx_t_3 += __pyx_v_g.shape[0];
+    if (unlikely(__pyx_t_3 < 0)) __pyx_t_2 = 0;
+  } else if (unlikely(__pyx_t_3 >= __pyx_v_g.shape[0])) __pyx_t_2 = 0;
+  if (unlikely(__pyx_t_2 != -1)) {
+    __Pyx_RaiseBufferIndexError(__pyx_t_2);
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  CUTEST_cofg((&__pyx_v_self->status), (&__pyx_v_self->nvar), (&(*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_1 * __pyx_v_x.strides[0]) )))), (&__pyx_v_f), (&(*((double *) ( /* dim=0 */ (__pyx_v_g.data + __pyx_t_3 * __pyx_v_g.strides[0]) )))), (&__pyx_v_grad));
+
+  /* "cutest/ccutest.pyx":306
+ * 
+ *         CUTEST_cofg( &self.status, &self.nvar, &x[0], &f, &g[0], &grad)
+ *         return f, np.asarray(g)             # <<<<<<<<<<<<<<
+ * 
+ *     def cutest_error(self):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_g, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_8 = NULL;
+  if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_7))) {
+    __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_7);
+    if (likely(__pyx_t_8)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
+      __Pyx_INCREF(__pyx_t_8);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_7, function);
+    }
+  }
+  if (!__pyx_t_8) {
+    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_GOTREF(__pyx_t_5);
+  } else {
+    __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_9);
+    __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_8); __pyx_t_8 = NULL;
+    __Pyx_GIVEREF(__pyx_t_6);
+    PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_6);
+    __pyx_t_6 = 0;
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_9, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_GIVEREF(__pyx_t_4);
+  PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_5);
+  __pyx_t_4 = 0;
+  __pyx_t_5 = 0;
+  __pyx_r = __pyx_t_7;
+  __pyx_t_7 = 0;
+  goto __pyx_L0;
+
+  /* "cutest/ccutest.pyx":302
+ *         return f
+ * 
+ *     def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):             # <<<<<<<<<<<<<<
+ *         """ Compute objective gradient """
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_8);
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_AddTraceback("cutest.ccutest.Cutest.cutest_cofg", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_x, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_g, 1);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "cutest/ccutest.pyx":308
+ *         return f, np.asarray(g)
  * 
  *     def cutest_error(self):             # <<<<<<<<<<<<<<
  *         """Analyse error return from C function """
@@ -3314,20 +3534,20 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4cutest_ufn(struct __pyx_obj_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_7cutest_error(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_6cutest_7ccutest_6Cutest_6cutest_error[] = "Analyse error return from C function ";
-static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_7cutest_error(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_9cutest_error(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_6cutest_7ccutest_6Cutest_8cutest_error[] = "Analyse error return from C function ";
+static PyObject *__pyx_pw_6cutest_7ccutest_6Cutest_9cutest_error(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("cutest_error (wrapper)", 0);
-  __pyx_r = __pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(((struct __pyx_obj_6cutest_7ccutest_Cutest *)__pyx_v_self));
+  __pyx_r = __pyx_pf_6cutest_7ccutest_6Cutest_8cutest_error(((struct __pyx_obj_6cutest_7ccutest_Cutest *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self) {
+static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_8cutest_error(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -3336,7 +3556,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("cutest_error", 0);
 
-  /* "cutest/ccutest.pyx":302
+  /* "cutest/ccutest.pyx":311
  *         """Analyse error return from C function """
  * 
  *         if self.status > 1:             # <<<<<<<<<<<<<<
@@ -3346,7 +3566,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
   __pyx_t_1 = ((__pyx_v_self->status > 1) != 0);
   if (__pyx_t_1) {
 
-    /* "cutest/ccutest.pyx":303
+    /* "cutest/ccutest.pyx":312
  * 
  *         if self.status > 1:
  *             if self.status == 1:             # <<<<<<<<<<<<<<
@@ -3356,16 +3576,16 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
     switch (__pyx_v_self->status) {
       case 1:
 
-      /* "cutest/ccutest.pyx":304
+      /* "cutest/ccutest.pyx":313
  *         if self.status > 1:
  *             if self.status == 1:
  *                 print('memory allocation error')             # <<<<<<<<<<<<<<
  *             elif self.status == 2:
  *                 print('array bound error')
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_memory_allocation_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 304; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (__Pyx_PrintOne(0, __pyx_kp_s_memory_allocation_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 313; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "cutest/ccutest.pyx":303
+      /* "cutest/ccutest.pyx":312
  * 
  *         if self.status > 1:
  *             if self.status == 1:             # <<<<<<<<<<<<<<
@@ -3374,7 +3594,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
  */
       break;
 
-      /* "cutest/ccutest.pyx":305
+      /* "cutest/ccutest.pyx":314
  *             if self.status == 1:
  *                 print('memory allocation error')
  *             elif self.status == 2:             # <<<<<<<<<<<<<<
@@ -3383,16 +3603,16 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
  */
       case 2:
 
-      /* "cutest/ccutest.pyx":306
+      /* "cutest/ccutest.pyx":315
  *                 print('memory allocation error')
  *             elif self.status == 2:
  *                 print('array bound error')             # <<<<<<<<<<<<<<
  *             elif self.status == 3:
  *                 print('evaluation error')
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_array_bound_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 306; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (__Pyx_PrintOne(0, __pyx_kp_s_array_bound_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 315; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "cutest/ccutest.pyx":305
+      /* "cutest/ccutest.pyx":314
  *             if self.status == 1:
  *                 print('memory allocation error')
  *             elif self.status == 2:             # <<<<<<<<<<<<<<
@@ -3401,7 +3621,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
  */
       break;
 
-      /* "cutest/ccutest.pyx":307
+      /* "cutest/ccutest.pyx":316
  *             elif self.status == 2:
  *                 print('array bound error')
  *             elif self.status == 3:             # <<<<<<<<<<<<<<
@@ -3410,16 +3630,16 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
  */
       case 3:
 
-      /* "cutest/ccutest.pyx":308
+      /* "cutest/ccutest.pyx":317
  *                 print('array bound error')
  *             elif self.status == 3:
  *                 print('evaluation error')             # <<<<<<<<<<<<<<
  *             else:
  *                 print('unknow error')
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_evaluation_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 308; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (__Pyx_PrintOne(0, __pyx_kp_s_evaluation_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-      /* "cutest/ccutest.pyx":307
+      /* "cutest/ccutest.pyx":316
  *             elif self.status == 2:
  *                 print('array bound error')
  *             elif self.status == 3:             # <<<<<<<<<<<<<<
@@ -3429,18 +3649,18 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
       break;
       default:
 
-      /* "cutest/ccutest.pyx":310
+      /* "cutest/ccutest.pyx":319
  *                 print('evaluation error')
  *             else:
  *                 print('unknow error')             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_unknow_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 310; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (__Pyx_PrintOne(0, __pyx_kp_s_unknow_error) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 319; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       break;
     }
 
-    /* "cutest/ccutest.pyx":302
+    /* "cutest/ccutest.pyx":311
  *         """Analyse error return from C function """
  * 
  *         if self.status > 1:             # <<<<<<<<<<<<<<
@@ -3449,8 +3669,8 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
  */
   }
 
-  /* "cutest/ccutest.pyx":299
- *         return f
+  /* "cutest/ccutest.pyx":308
+ *         return f, np.asarray(g)
  * 
  *     def cutest_error(self):             # <<<<<<<<<<<<<<
  *         """Analyse error return from C function """
@@ -3469,7 +3689,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":312
+/* "cutest/ccutest.pyx":321
  *                 print('unknow error')
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -3478,17 +3698,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6cutest_error(struct __pyx_ob
  */
 
 /* Python wrapper */
-static void __pyx_pw_6cutest_7ccutest_6Cutest_9__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_6cutest_7ccutest_6Cutest_9__dealloc__(PyObject *__pyx_v_self) {
+static void __pyx_pw_6cutest_7ccutest_6Cutest_11__dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_pw_6cutest_7ccutest_6Cutest_11__dealloc__(PyObject *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(((struct __pyx_obj_6cutest_7ccutest_Cutest *)__pyx_v_self));
+  __pyx_pf_6cutest_7ccutest_6Cutest_10__dealloc__(((struct __pyx_obj_6cutest_7ccutest_Cutest *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
 }
 
-static void __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self) {
+static void __pyx_pf_6cutest_7ccutest_6Cutest_10__dealloc__(struct __pyx_obj_6cutest_7ccutest_Cutest *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3498,7 +3718,7 @@ static void __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(struct __pyx_obj_6cut
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "cutest/ccutest.pyx":316
+  /* "cutest/ccutest.pyx":325
  *         Close the loaded problem
  *         """
  *         FORTRAN_close(&self.funit, &self.status)             # <<<<<<<<<<<<<<
@@ -3507,14 +3727,14 @@ static void __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(struct __pyx_obj_6cut
  */
   FORTRAN_close((&__pyx_v_self->funit), (&__pyx_v_self->status));
 
-  /* "cutest/ccutest.pyx":317
+  /* "cutest/ccutest.pyx":326
  *         """
  *         FORTRAN_close(&self.funit, &self.status)
  *         self.cutest_error()             # <<<<<<<<<<<<<<
  * 
  * #########Interface properties#########################
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_cutest_error); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_cutest_error); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 326; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3527,16 +3747,16 @@ static void __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(struct __pyx_obj_6cut
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 326; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 326; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cutest/ccutest.pyx":312
+  /* "cutest/ccutest.pyx":321
  *                 print('unknow error')
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -3555,7 +3775,7 @@ static void __pyx_pf_6cutest_7ccutest_6Cutest_8__dealloc__(struct __pyx_obj_6cut
   __Pyx_RefNannyFinishContext();
 }
 
-/* "cutest/ccutest.pyx":322
+/* "cutest/ccutest.pyx":331
  * 
  *     property x:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3589,7 +3809,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1x___get__(struct __pyx_obj_6
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":324
+  /* "cutest/ccutest.pyx":333
  *         def __get__(self):
  *             """x getter"""
  *             return np.asarray(self.x)             # <<<<<<<<<<<<<<
@@ -3597,13 +3817,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1x___get__(struct __pyx_obj_6
  *             self.x = val
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->x.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->x, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->x.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->x, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3616,17 +3836,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1x___get__(struct __pyx_obj_6
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 324; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -3635,7 +3855,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1x___get__(struct __pyx_obj_6
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":322
+  /* "cutest/ccutest.pyx":331
  * 
  *     property x:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3658,7 +3878,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1x___get__(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":325
+/* "cutest/ccutest.pyx":334
  *             """x getter"""
  *             return np.asarray(self.x)
  *         def __set__(self, val):             # <<<<<<<<<<<<<<
@@ -3688,7 +3908,7 @@ static int __pyx_pf_6cutest_7ccutest_6Cutest_1x_2__set__(struct __pyx_obj_6cutes
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "cutest/ccutest.pyx":326
+  /* "cutest/ccutest.pyx":335
  *             return np.asarray(self.x)
  *         def __set__(self, val):
  *             self.x = val             # <<<<<<<<<<<<<<
@@ -3696,13 +3916,13 @@ static int __pyx_pf_6cutest_7ccutest_6Cutest_1x_2__set__(struct __pyx_obj_6cutes
  *         def __get__(self):
  */
   __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(__pyx_v_val);
-  if (unlikely(!__pyx_t_1.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 326; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_t_1.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 335; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->x, 0);
   __pyx_v_self->x = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "cutest/ccutest.pyx":325
+  /* "cutest/ccutest.pyx":334
  *             """x getter"""
  *             return np.asarray(self.x)
  *         def __set__(self, val):             # <<<<<<<<<<<<<<
@@ -3722,7 +3942,7 @@ static int __pyx_pf_6cutest_7ccutest_6Cutest_1x_2__set__(struct __pyx_obj_6cutes
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":328
+/* "cutest/ccutest.pyx":337
  *             self.x = val
  *     property v:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3756,7 +3976,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1v___get__(struct __pyx_obj_6
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":329
+  /* "cutest/ccutest.pyx":338
  *     property v:
  *         def __get__(self):
  *             return np.asarray(self.v)             # <<<<<<<<<<<<<<
@@ -3764,13 +3984,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1v___get__(struct __pyx_obj_6
  *     property bl:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->v.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->v, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->v.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->v, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3783,17 +4003,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1v___get__(struct __pyx_obj_6
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 329; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 338; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -3802,7 +4022,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1v___get__(struct __pyx_obj_6
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":328
+  /* "cutest/ccutest.pyx":337
  *             self.x = val
  *     property v:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3825,7 +4045,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_1v___get__(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":332
+/* "cutest/ccutest.pyx":341
  * 
  *     property bl:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3859,7 +4079,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bl___get__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":333
+  /* "cutest/ccutest.pyx":342
  *     property bl:
  *         def __get__(self):
  *             return np.asarray(self.bl)             # <<<<<<<<<<<<<<
@@ -3867,13 +4087,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bl___get__(struct __pyx_obj_
  *     property bu:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->bl.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->bl, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->bl.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->bl, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3886,17 +4106,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bl___get__(struct __pyx_obj_
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 342; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -3905,7 +4125,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bl___get__(struct __pyx_obj_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":332
+  /* "cutest/ccutest.pyx":341
  * 
  *     property bl:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3928,7 +4148,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bl___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":336
+/* "cutest/ccutest.pyx":345
  * 
  *     property bu:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -3962,7 +4182,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bu___get__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":337
+  /* "cutest/ccutest.pyx":346
  *     property bu:
  *         def __get__(self):
  *             return np.asarray(self.bu)             # <<<<<<<<<<<<<<
@@ -3970,13 +4190,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bu___get__(struct __pyx_obj_
  *     property cl:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->bu.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->bu, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->bu.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->bu, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3989,17 +4209,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bu___get__(struct __pyx_obj_
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 346; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -4008,7 +4228,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bu___get__(struct __pyx_obj_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":336
+  /* "cutest/ccutest.pyx":345
  * 
  *     property bu:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4031,7 +4251,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2bu___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":340
+/* "cutest/ccutest.pyx":349
  * 
  *     property cl:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4065,7 +4285,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cl___get__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":341
+  /* "cutest/ccutest.pyx":350
  *     property cl:
  *         def __get__(self):
  *             return np.asarray(self.cl)             # <<<<<<<<<<<<<<
@@ -4073,13 +4293,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cl___get__(struct __pyx_obj_
  *     property cu:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->cl.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->cl, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->cl.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->cl, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -4092,17 +4312,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cl___get__(struct __pyx_obj_
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 350; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -4111,7 +4331,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cl___get__(struct __pyx_obj_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":340
+  /* "cutest/ccutest.pyx":349
  * 
  *     property cl:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4134,7 +4354,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cl___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":344
+/* "cutest/ccutest.pyx":353
  * 
  *     property cu:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4168,7 +4388,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cu___get__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":345
+  /* "cutest/ccutest.pyx":354
  *     property cu:
  *         def __get__(self):
  *             return np.asarray(self.cu)             # <<<<<<<<<<<<<<
@@ -4176,13 +4396,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cu___get__(struct __pyx_obj_
  *     property nvar:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->cu.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->cu, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->cu.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->cu, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -4195,17 +4415,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cu___get__(struct __pyx_obj_
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 345; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -4214,7 +4434,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cu___get__(struct __pyx_obj_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":344
+  /* "cutest/ccutest.pyx":353
  * 
  *     property cu:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4237,7 +4457,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_2cu___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":348
+/* "cutest/ccutest.pyx":357
  * 
  *     property nvar:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4267,7 +4487,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nvar___get__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":349
+  /* "cutest/ccutest.pyx":358
  *     property nvar:
  *         def __get__(self):
  *             return self.nvar             # <<<<<<<<<<<<<<
@@ -4275,13 +4495,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nvar___get__(struct __pyx_ob
  *     property ncon:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->nvar); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 349; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->nvar); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 358; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":348
+  /* "cutest/ccutest.pyx":357
  * 
  *     property nvar:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4300,7 +4520,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nvar___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":352
+/* "cutest/ccutest.pyx":361
  * 
  *     property ncon:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4330,7 +4550,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4ncon___get__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":353
+  /* "cutest/ccutest.pyx":362
  *     property ncon:
  *         def __get__(self):
  *             return self.ncon             # <<<<<<<<<<<<<<
@@ -4338,13 +4558,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4ncon___get__(struct __pyx_ob
  *     property nnzj:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->ncon); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 353; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->ncon); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":352
+  /* "cutest/ccutest.pyx":361
  * 
  *     property ncon:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4363,7 +4583,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4ncon___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":356
+/* "cutest/ccutest.pyx":365
  * 
  *     property nnzj:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4393,7 +4613,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nnzj___get__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":357
+  /* "cutest/ccutest.pyx":366
  *     property nnzj:
  *         def __get__(self):
  *             return self.nnzj             # <<<<<<<<<<<<<<
@@ -4401,13 +4621,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nnzj___get__(struct __pyx_ob
  *     property nnzh:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->nnzj); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->nnzj); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 366; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":356
+  /* "cutest/ccutest.pyx":365
  * 
  *     property nnzj:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4426,7 +4646,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nnzj___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":360
+/* "cutest/ccutest.pyx":369
  * 
  *     property nnzh:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4456,7 +4676,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nnzh___get__(struct __pyx_ob
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":361
+  /* "cutest/ccutest.pyx":370
  *     property nnzh:
  *         def __get__(self):
  *             return self.nnzh             # <<<<<<<<<<<<<<
@@ -4464,13 +4684,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nnzh___get__(struct __pyx_ob
  *     property lin:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->nnzh); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 361; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->nnzh); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":360
+  /* "cutest/ccutest.pyx":369
  * 
  *     property nnzh:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4489,7 +4709,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_4nnzh___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":364
+/* "cutest/ccutest.pyx":373
  * 
  *     property lin:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4523,7 +4743,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_3lin___get__(struct __pyx_obj
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":365
+  /* "cutest/ccutest.pyx":374
  *     property lin:
  *         def __get__(self):
  *             return np.asarray(self.lin)             # <<<<<<<<<<<<<<
@@ -4531,13 +4751,13 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_3lin___get__(struct __pyx_obj
  *     property status:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->lin.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->lin, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_self->lin.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");{__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->lin, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -4550,17 +4770,17 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_3lin___get__(struct __pyx_obj
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 365; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 374; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -4569,7 +4789,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_3lin___get__(struct __pyx_obj
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":364
+  /* "cutest/ccutest.pyx":373
  * 
  *     property lin:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4592,7 +4812,7 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_3lin___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "cutest/ccutest.pyx":368
+/* "cutest/ccutest.pyx":377
  * 
  *     property status:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -4622,20 +4842,20 @@ static PyObject *__pyx_pf_6cutest_7ccutest_6Cutest_6status___get__(struct __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "cutest/ccutest.pyx":369
+  /* "cutest/ccutest.pyx":378
  *     property status:
  *         def __get__(self):
  *             return self.status             # <<<<<<<<<<<<<<
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->status); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->status); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 378; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cutest/ccutest.pyx":368
+  /* "cutest/ccutest.pyx":377
  * 
  *     property status:
  *         def __get__(self):             # <<<<<<<<<<<<<<
@@ -18361,7 +18581,7 @@ static void __pyx_tp_dealloc_6cutest_7ccutest_Cutest(PyObject *o) {
     PyObject *etype, *eval, *etb;
     PyErr_Fetch(&etype, &eval, &etb);
     ++Py_REFCNT(o);
-    __pyx_pw_6cutest_7ccutest_6Cutest_9__dealloc__(o);
+    __pyx_pw_6cutest_7ccutest_6Cutest_11__dealloc__(o);
     --Py_REFCNT(o);
     PyErr_Restore(etype, eval, etb);
   }
@@ -18435,9 +18655,10 @@ static PyObject *__pyx_getprop_6cutest_7ccutest_6Cutest_status(PyObject *o, CYTH
 }
 
 static PyMethodDef __pyx_methods_6cutest_7ccutest_Cutest[] = {
-  {"cutest_cfn", (PyCFunction)__pyx_pw_6cutest_7ccutest_6Cutest_3cutest_cfn, METH_VARARGS|METH_KEYWORDS, 0},
+  {"cutest_cfn", (PyCFunction)__pyx_pw_6cutest_7ccutest_6Cutest_3cutest_cfn, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6cutest_7ccutest_6Cutest_2cutest_cfn},
   {"cutest_ufn", (PyCFunction)__pyx_pw_6cutest_7ccutest_6Cutest_5cutest_ufn, METH_VARARGS|METH_KEYWORDS, 0},
-  {"cutest_error", (PyCFunction)__pyx_pw_6cutest_7ccutest_6Cutest_7cutest_error, METH_NOARGS, __pyx_doc_6cutest_7ccutest_6Cutest_6cutest_error},
+  {"cutest_cofg", (PyCFunction)__pyx_pw_6cutest_7ccutest_6Cutest_7cutest_cofg, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6cutest_7ccutest_6Cutest_6cutest_cofg},
+  {"cutest_error", (PyCFunction)__pyx_pw_6cutest_7ccutest_6Cutest_9cutest_error, METH_NOARGS, __pyx_doc_6cutest_7ccutest_6Cutest_8cutest_error},
   {0, 0, 0, 0}
 };
 
@@ -19246,7 +19467,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
+  {&__pyx_n_s_g, __pyx_k_g, sizeof(__pyx_k_g), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
+  {&__pyx_n_s_grad, __pyx_k_grad, sizeof(__pyx_k_grad), 0, 0, 1, 1},
   {&__pyx_kp_s_i1, __pyx_k_i1, sizeof(__pyx_k_i1), 0, 0, 1, 0},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},

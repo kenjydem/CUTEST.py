@@ -287,14 +287,23 @@ cdef class Cutest:
         self.cutest_error()
     
     def cutest_cfn(self, double[:] x, double f, double[:] c):
+        """
+        Compute objective and constraints functions
+        """
 
         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
-        return c, f
+        return np.asarray(c), f
             
     def cutest_ufn(self, int status, double[:] x, double f):
     
         CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
         return f
+
+    def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):
+        """ Compute objective gradient """
+
+        CUTEST_cofg( &self.status, &self.nvar, &x[0], &f, &g[0], &grad)
+        return f, np.asarray(g)
 
     def cutest_error(self):
         """Analyse error return from C function """

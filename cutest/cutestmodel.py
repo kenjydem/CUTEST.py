@@ -34,29 +34,33 @@ class CUTEstModel(NLPModel) :
         NLPModel.__init__(self, self.prob.nvar, self.prob.ncon, name, **kwargs)
         self.nnzj = self.prob.nnzj
         self.nnzh = self.prob.nnzh
-        #self.equatn = self.prob.equatn
-        #self._lin = self.prob.linear
         self._nlin = len(self.prob.lin)
         self.x = self.prob.x 
         self.c = np.zeros((self.prob.ncon,), dtype=np.double)
         self.f = 0
+        self.get_grad = 1 #Check if gradient exist
+        self.g = np.zeros((self.prob.nvar,),dtype=np.double)
         self.status = 0
-     
-    # Evaluate objective function at x
+
     def obj(self,x, **kwargs):
-        """ Evalue la fonction objective et les contraintes du problème:
-        - x: Evaluation point (numpy array)
+        """ 
+        Compute  objective function and constraints at x:
+        - x: Evaluated point (numpy array)
         """
         if self.n > 0:
-            #[c, f] = self.prob.cutest_cfn(self.status, self.n, self.m, x, self.f, self.c)
             [c, f] = self.prob.cutest_cfn(x, self.f, self.c)
             return c,f    
         else:
             return cutest_ufn(self.status, self.n, x, self.f)
 
-    # Evaluate objective gradient at x
     def grad(self, x, **kwargs):
-        raise NotImplementedError, 'This method must be subclassed.'
+        """
+        Compute objective gradient at x:
+        - x: Evaluated point (numpy array)
+        """
+        if self.m > 0:
+            [f, g] = self.prob.cutest_cofg(x, self.f, self.g, self.get_grad)
+            return f,g
 
     # Evaluate vector of constraints at x
     def cons(self, x, **kwargs):
