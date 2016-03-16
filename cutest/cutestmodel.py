@@ -1,5 +1,6 @@
 #*-coding:Utf-8 -*
 import os
+import importlib
 import sys
 import numpy as np
 from nlp.model.nlpmodel import NLPModel
@@ -27,9 +28,12 @@ class CUTEstModel(NLPModel) :
             name = name[:-4]
         
         directory = compile(name)
-        fname = directory + "/OUTSDIF.d"
-        from cutest.ccutest import *
-        self.prob = Cutest(name, fname)
+        fname = directory + "/OUT.d" #"/OUTSDIF.d"
+        os.chdir(directory)
+        print os.getcwd()
+        cc = importlib.import_module(name) 
+        print dir(cc)
+        self.prob = cc.Cutest(name, fname)
         kwargs = {'x0':self.prob.x, 'pi0':self.prob.v, 'Lvar':self.prob.bl, 'Uvar':self.prob.bu, 'Lcon':self.prob.cl, 'Ucon':self.prob.cu} 
         NLPModel.__init__(self, self.prob.nvar, self.prob.ncon, name, **kwargs)
         self.nnzj = self.prob.nnzj
@@ -47,11 +51,12 @@ class CUTEstModel(NLPModel) :
         Compute  objective function and constraints at x:
         - x: Evaluated point (numpy array)
         """
-        if self.n > 0:
+        if self.m > 0:
             [c, f] = self.prob.cutest_cfn(x, self.f, self.c)
             return c,f    
         else:
-            return cutest_ufn(self.status, self.n, x, self.f)
+            [f] = self.prob.cutest_ufns(x, self.f)
+            return f
 
     def grad(self, x, **kwargs):
         """

@@ -1,11 +1,13 @@
 import os
 import sys
 import subprocess
+import ConfigParser
+import numpy
 from sys import platform
 
 CUTEST_ARCH = os.getenv('MYARCH')
 CUTEST_DIR = os.getenv('CUTEST')
-CUTEST_LIB = os.getenv('CUTESTLIB')
+#CUTEST_LIB = os.getenv('CUTESTLIB')
 
 if CUTEST_DIR is None or CUTEST_ARCH is None:
     raise(KeyError, "Please check that CUTEST and MYARCH are set")
@@ -25,29 +27,56 @@ elif platform == "win32":
 
 def compile(problem):
     """Decode SIF problem and compile shared library."""
-    #import tempfile
+    import tempfile
+    import cutest
+    import numpy as np
+
+    cutest_config = ConfigParser.SafeConfigParser()
+    
+    #Find automatic the folder of site.cfg
+    data_dir = os.path.join(os.path.dirname(cutest.__file__),'data')
+    cutest_config.read(os.path.join(data_dir, 'site.cfg'))
+    
+    default_library_dir = cutest_config.get('DEFAULT', 'library_dirs').split(os.pathsep)
+    default_include_dir = cutest_config.get('DEFAULT', 'include_dirs').split(os.pathsep)
+    
+    source1a = [os.path.join(data_dir, "ccutest.pyx")]
+    source2a = [os.path.join(data_dir, "ccutest.pxd")]
+    library_dirs = default_library_dir, 
+    libraries = ['cutest']
 
     cur_path = os.getcwd()
 
     # Decode and compile problem in temprary directory.
-    os.chdir(CUTEST_LIB) 
+    directory = tempfile.mkdtemp()
+    os.chdir(directory) 
 
-    directory = os.path.join(CUTEST_LIB,problem)
+    # copy and paste .pxd and .pyx on the new directory 
 
-    current_path = os.environ['DYLD_LIBRARY_PATH'] 
-    os.environ['DYLD_LIBRARY_PATH'] = directory + ':' + current_path
+    source1b = [os.path.join(directory, problem+".pyx")]
+    source2b = [os.path.join(directory, problem+".pxd")]
+    subprocess.call(['cp', source1a[0], source1b[0] ])
+    subprocess.call(['cp', source2a[0], source2b[0] ])
+    #subprocess.call(['touch', '__init__.py'])
 
-    if not os.path.exists(directory):
-        os.makedirs(problem)
-    os.chdir(directory)    
+    # Cythonize the .pyx to get the .c
+    subprocess.call(['cython', '-I', library_dirs[0][0], problem+".pyx"])
+    
+    # Problem decode
+    
     subprocess.call(['sifdecoder', problem])
     libname = "lib%s.%s" % (problem, soname)
-
+    #Check if decode problem is succed
     if os.path.isfile("OUTSDIF.d") == False:
         sys.exit()
 
     srcs = ["ELFUN", "RANGE", "GROUP", "EXTER"]
     dat = ["OUTSDIF.d", "AUTOMAT.d"]
+
+    # Create problem .o from .c
+    ## It will be nice to find automaticlly the python path
+    subprocess.call(["gcc-5","-g", "-I"+library_dirs[0][0], "-I"+np.get_include(),"-I/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/include/python2.7","-c", problem+".c", "-o", problem+".o"])
+    #flags from cython "-DNDEBUG","-fwrapv","-O3","-Wall","-Wstrict-prototypes","-O3","-fPIC"
 
     # Compile source files.
     exit_code = subprocess.call([fcompiler, "-c"] +  [src + ".f" for src in srcs])
@@ -55,13 +84,14 @@ def compile(problem):
     cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"]+ [src + ".o" for src in srcs]
     link_code = subprocess.call(cmd)
 
-    # Link ccutest and problem library, this new library must to be named ccustest.so (cython requirement)
-    cmd = "gcc-5 -bundle -undefined dynamic_lookup -O3 -fPIC ~/Documents/Cours/Maitrise/MTH8408/CUTEST.py/build/temp.macosx-10.8-x86_64-2.7/cutest/ccutest.o -L"
-    cmd = cmd + directory + " -L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib -l" + problem + " -lcutest -o ccutest.so"
+    # Link all problem library, to create the .so
+    cmd = "gcc-5 -bundle -undefined dynamic_lookup -O3 -fPIC "+problem+ ".o ELFUN.o EXTER.o GROUP.o RANGE.o -L"+library_dirs[0][0] +" -lcutest -o "+problem+".so"# ccutest.so"
     os.system(cmd)
 
-    subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o'])
-
+    # Clean the reposite
+    subprocess.call(['cp', 'OUTSDIF.d', 'OUT.d']) #we rename the name otherwise too long for cython
+    subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o','OUTSDIF.D'])
+    
     os.chdir(cur_path)
     return directory
 

@@ -4,7 +4,7 @@ import numpy as np
 cimport numpy as np
 
 
-cdef extern from "/usr/local/include/cutest.h":
+cdef extern from "cutest.h":
     ctypedef int      integer;
     ctypedef float    real;
     ctypedef double   doublereal;
@@ -234,7 +234,7 @@ cdef class Cutest:
     cdef double[:] x, bl, bu, v, cl, cu
     cdef long[:] lin, nln
 
-    def __cinit__(self, char* name,char* fname):
+    def __init__(self, char* name,char* fname):
         """
         Initialization of the class 
         """
@@ -294,9 +294,19 @@ cdef class Cutest:
         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
         return np.asarray(c), f
             
-    def cutest_ufn(self, int status, double[:] x, double f):
-    
-        CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
+    def cutest_ufns(self, double[:] x, double f):
+        """
+        Compute objective function for problem without constraint
+        input:
+        -x: array
+        -f: double
+        """
+
+        print x
+        print f
+        #void CUTEST_ufn( integer *status, const integer *n, const doublereal *x,doublereal *f );
+        
+        #CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
         return f
 
     def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):
@@ -324,6 +334,7 @@ cdef class Cutest:
         """
         FORTRAN_close(&self.funit, &self.status)
         self.cutest_error()
+        print 'ok'
 
 #########Interface properties#########################
 

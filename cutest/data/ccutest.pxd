@@ -1,4 +1,4 @@
-cdef extern from "/usr/local/include/cutest.h":
+cdef extern from "cutest.h":
     ctypedef int      integer;
     ctypedef float    real;
     ctypedef double   doublereal;
