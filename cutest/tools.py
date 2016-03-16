@@ -14,6 +14,7 @@ if CUTEST_DIR is None or CUTEST_ARCH is None:
 cutest_libdir_double = os.path.join(CUTEST_DIR, "objects", CUTEST_ARCH, "double")
 
 fcompiler = "gfortran"
+ccompiler = "gcc-5"
 if platform == "linux" or platform == "linux2":
     linker = "ld"
     sh_flags = ["-shared"]
@@ -27,6 +28,7 @@ elif platform == "win32":
 
 def compile(problem):
     """Decode SIF problem and compile shared library."""
+    from distutils import sysconfig
     import tempfile
     import cutest
     import numpy as np
@@ -52,18 +54,15 @@ def compile(problem):
     os.chdir(directory) 
 
     # copy and paste .pxd and .pyx on the new directory 
-
     source1b = [os.path.join(directory, problem+".pyx")]
     source2b = [os.path.join(directory, problem+".pxd")]
     subprocess.call(['cp', source1a[0], source1b[0] ])
     subprocess.call(['cp', source2a[0], source2b[0] ])
-    #subprocess.call(['touch', '__init__.py'])
 
     # Cythonize the .pyx to get the .c
     subprocess.call(['cython', '-I', library_dirs[0][0], problem+".pyx"])
     
     # Problem decode
-    
     subprocess.call(['sifdecoder', problem])
     libname = "lib%s.%s" % (problem, soname)
     #Check if decode problem is succed
@@ -74,9 +73,7 @@ def compile(problem):
     dat = ["OUTSDIF.d", "AUTOMAT.d"]
 
     # Create problem .o from .c
-    ## It will be nice to find automaticlly the python path
-    subprocess.call(["gcc-5","-g", "-I"+library_dirs[0][0], "-I"+np.get_include(),"-I/usr/local/Cellar/python/2.7.10_2/Frameworks/Python.framework/Versions/2.7/include/python2.7","-c", problem+".c", "-o", problem+".o"])
-    #flags from cython "-DNDEBUG","-fwrapv","-O3","-Wall","-Wstrict-prototypes","-O3","-fPIC"
+    subprocess.call([ccompiler,"-g", "-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
 
     # Compile source files.
     exit_code = subprocess.call([fcompiler, "-c"] +  [src + ".f" for src in srcs])
@@ -84,9 +81,9 @@ def compile(problem):
     cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"]+ [src + ".o" for src in srcs]
     link_code = subprocess.call(cmd)
 
-    # Link all problem library, to create the .so
-    cmd = "gcc-5 -dynamiclib -undefined dynamic_lookup "+problem+ ".o ELFUN.o EXTER.o GROUP.o RANGE.o -L"+library_dirs[0][0] +" -lcutest -o "+problem+".so"# ccutest.so"
-    os.system(cmd)
+    # Link all problem library to create the .so
+    cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"] + ["-o"] + [problem +".so"]
+    subprocess.call(cmd)
 
     # Clean the reposite
     subprocess.call(['cp', 'OUTSDIF.d', 'OUT.d']) #we rename the name otherwise too long for cython

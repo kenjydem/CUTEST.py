@@ -30,9 +30,7 @@ class CUTEstModel(NLPModel) :
         directory = compile(name)
         fname = directory + "/OUT.d" #"/OUTSDIF.d"
         os.chdir(directory)
-        print os.getcwd()
         cc = importlib.import_module(name) 
-        print dir(cc)
         self.prob = cc.Cutest(name, fname)
         kwargs = {'x0':self.prob.x, 'pi0':self.prob.v, 'Lvar':self.prob.bl, 'Uvar':self.prob.bu, 'Lcon':self.prob.cl, 'Ucon':self.prob.cu} 
         NLPModel.__init__(self, self.prob.nvar, self.prob.ncon, name, **kwargs)
@@ -42,7 +40,7 @@ class CUTEstModel(NLPModel) :
         self.x = self.prob.x 
         self.c = np.zeros((self.prob.ncon,), dtype=np.double)
         self.f = 0
-        self.get_grad = 1 #Check if gradient exist
+        self.get_grad = 1 #Check if gradient exist that should be automatic
         self.g = np.zeros((self.prob.nvar,),dtype=np.double)
         self.status = 0
 
@@ -55,7 +53,7 @@ class CUTEstModel(NLPModel) :
             [c, f] = self.prob.cutest_cfn(x, self.f, self.c)
             return c,f    
         else:
-            [f] = self.prob.cutest_ufns(x, self.f)
+            f = self.prob.cutest_ufn(x, self.f)
             return f
 
     def grad(self, x, **kwargs):

@@ -294,19 +294,14 @@ cdef class Cutest:
         CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
         return np.asarray(c), f
             
-    def cutest_ufns(self, double[:] x, double f):
+    def cutest_ufn(self, double[:] x, double f):
         """
         Compute objective function for problem without constraint
         input:
         -x: array
         -f: double
         """
-
-        print x
-        print f
-        #void CUTEST_ufn( integer *status, const integer *n, const doublereal *x,doublereal *f );
-        
-        #CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
+        CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
         return f
 
     def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):
@@ -334,7 +329,7 @@ cdef class Cutest:
         """
         FORTRAN_close(&self.funit, &self.status)
         self.cutest_error()
-        print 'ok'
+        print 'The problem is closed'
 
 #########Interface properties#########################
 
