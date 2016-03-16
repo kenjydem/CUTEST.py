@@ -85,7 +85,7 @@ def compile(problem):
     link_code = subprocess.call(cmd)
 
     # Link all problem library, to create the .so
-    cmd = "gcc-5 -bundle -undefined dynamic_lookup -O3 -fPIC "+problem+ ".o ELFUN.o EXTER.o GROUP.o RANGE.o -L"+library_dirs[0][0] +" -lcutest -o "+problem+".so"# ccutest.so"
+    cmd = "gcc-5 -dynamiclib -undefined dynamic_lookup "+problem+ ".o ELFUN.o EXTER.o GROUP.o RANGE.o -L"+library_dirs[0][0] +" -lcutest -o "+problem+".so"# ccutest.so"
     os.system(cmd)
 
     # Clean the reposite
