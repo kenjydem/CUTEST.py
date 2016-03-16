@@ -14,7 +14,7 @@ if CUTEST_DIR is None or CUTEST_ARCH is None:
 cutest_libdir_double = os.path.join(CUTEST_DIR, "objects", CUTEST_ARCH, "double")
 
 fcompiler = "gfortran"
-ccompiler = "gcc-5"
+ccompiler = "gcc"
 if platform == "linux" or platform == "linux2":
     linker = "ld"
     sh_flags = ["-shared"]
