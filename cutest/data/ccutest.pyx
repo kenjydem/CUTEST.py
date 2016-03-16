@@ -238,7 +238,7 @@ cdef class Cutest:
         """
         Initialization of the class 
         """
-        self.funit = 42 # FORTRAN unit number for OUTSDIF.d
+        self.funit = 5#42 # FORTRAN unit number for OUTSDIF.d
         self.iout = 6
         self.io_buffer = 11
         self.name = name
@@ -285,7 +285,10 @@ cdef class Cutest:
         else:
             CUTEST_udimsh(&self.status, &self.nnzh)
         self.cutest_error()
-    
+   
+        FORTRAN_close(&self.const2, &self.status)#funit, &self.status)
+        self.cutest_error()
+
     def cutest_cfn(self, double[:] x, double f, double[:] c):
         """
         Compute objective and constraints functions
@@ -327,9 +330,9 @@ cdef class Cutest:
         """
         Close the loaded problem
         """
-        FORTRAN_close(&self.funit, &self.status)
+        FORTRAN_close(&self.const2, &self.status)#funit, &self.status)
         self.cutest_error()
-        print 'The problem is closed'
+        print'The problem %s is closed' % self.name
 
 #########Interface properties#########################
 
