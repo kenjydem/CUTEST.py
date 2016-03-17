@@ -28,7 +28,7 @@ class CUTEstModel(NLPModel) :
             name = name[:-4]
         
         directory = compile(name)
-        fname = directory + "/OUT.d" #"/OUTSDIF.d"
+        fname = os.path.join(directory, "OUT.d") #"/OUTSDIF.d"
         os.chdir(directory)
         cc = importlib.import_module(name) 
         self.prob = cc.Cutest(name, fname)

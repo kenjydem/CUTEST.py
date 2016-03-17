@@ -332,6 +332,10 @@ cdef class Cutest:
         """
         FORTRAN_close(&self.const2, &self.status)#funit, &self.status)
         self.cutest_error()
+        if self.ncon > 0:
+            CUTEST_cterminate(&self.status)
+        else:
+            CUTEST_uterminate(&self.status)
         print'The problem %s is closed' % self.name
 
 #########Interface properties#########################

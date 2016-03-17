@@ -73,7 +73,7 @@ def compile(problem):
     dat = ["OUTSDIF.d", "AUTOMAT.d"]
 
     # Create problem .o from .c
-    subprocess.call([ccompiler,"-g", "-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
+    subprocess.call([ccompiler,"-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
 
     # Compile source files.
     exit_code = subprocess.call([fcompiler, "-c"] +  [src + ".f" for src in srcs])
@@ -82,11 +82,14 @@ def compile(problem):
     link_code = subprocess.call(cmd)
 
     # Link all problem library to create the .so
-    cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"] + ["-o"] + [problem +".so"]
+    if platform == "linux" or platform == "linux2": 
+        cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+lib for lib in library_dirs[0]] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem +".so"]
+    elif platform == "darwin":
+        cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"]+ ["-o"] + [problem +".so"]
     subprocess.call(cmd)
 
     # Clean the reposite
-    subprocess.call(['cp', 'OUTSDIF.d', 'OUT.d']) #we rename the name otherwise too long for cython
+    subprocess.call(['cp', 'OUTSDIF.d', 'OUT.d']) #we rename the fname otherwise too long for cython
     subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o','OUTSDIF.D'])
     
     os.chdir(cur_path)
