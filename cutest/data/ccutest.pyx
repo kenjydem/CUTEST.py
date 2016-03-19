@@ -3,7 +3,6 @@ import platform
 import numpy as np
 cimport numpy as np
 
-
 cdef extern from "cutest.h":
     ctypedef int      integer;
     ctypedef float    real;
@@ -225,93 +224,73 @@ cdef extern from "cutest.h":
     void  CUTEst_free( void **object );
 
 #######Cython interface#########################
-
-cdef class Cutest:
-
-    cdef int funit, status, nvar, ncon, iout, io_buffer, nlin, nnln, nnzh, nnzj, const1, const2, const3 
-    cdef char* name, 
-    cdef char* fname
-    cdef double[:] x, bl, bu, v, cl, cu
-    cdef long[:] lin, nln
-
-    def __init__(self, char* name,char* fname):
+cdef class Cutest : 
+    cdef int status
+    cdef int const2
+    cdef char * name
+    def __init__(self, char* name):
         """
         Initialization of the class 
         """
-        self.funit = 5#42 # FORTRAN unit number for OUTSDIF.d
-        self.iout = 6
-        self.io_buffer = 11
-        self.name = name
-        self.fname = fname
-        FORTRAN_open(&self.funit, self.fname, &self.status)
-        self.cutest_error()
-        CUTEST_cdimen( &self.status, &self.funit, &self.nvar , &self.ncon )
-        self.cutest_error()
-        
-        self.const1 = 5
+        self.status = 0
         self.const2 = 6
-        self.const3 = 1
+        self.name = name
+
+    def loadProb(self, char* fname):
+        cdef int funit, nvar, ncon, iout, io_buffer, nlin, nnln, nnzh, nnzj, const1, const3 
+        cdef double[:] x, bl, bu, v, cl, cu
+        cdef long[:] lin, nln
+    
+        funit = 5#42 # FORTRAN unit number for OUTSDIF.d
+        iout = 6
+        io_buffer = 11
+        FORTRAN_open(&funit, fname, &self.status)
+        self.cutest_error()
+        CUTEST_cdimen(&self.status, &funit, &nvar , &ncon)
+        self.cutest_error()
+    
+        const1 = 5
+        const3 = 1
       
-        self.x = np.empty((self.nvar,), dtype = np.double)
-        self.bl = np.empty((self.nvar,), dtype = np.double)
-        self.bu = np.empty((self.nvar,), dtype = np.double)
-        self.v = np.empty((self.nvar,), dtype = np.double)
-        self.cl = np.empty((self.nvar,), dtype = np.double)
-        self.cu = np.empty((self.nvar,), dtype = np.double)
+        x = np.empty((nvar,), dtype = np.double)
+        bl = np.empty((nvar,), dtype = np.double)
+        bu = np.empty((nvar,), dtype = np.double)
+        v = np.empty((nvar,), dtype = np.double)
+        cl = np.empty((nvar,), dtype = np.double)
+        cu = np.empty((nvar,), dtype = np.double)
         
-        cdef np.ndarray[logical, cast=True] equatn = np.arange(self.ncon, dtype='>i1')
-        cdef np.ndarray[logical, cast=True] linear = np.arange(self.ncon, dtype='>i1')
+        cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
+        cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
         
-        if self.ncon > 0:
-            CUTEST_csetup(&self.status, &self.funit, &self.const1, &self.const2, &self.nvar,
-                            &self.ncon, &self.x[0], &self.bl[0], &self.bu[0],
-                            &self.v[0], &self.cl[0], &self.cu[0], &equatn[0], &linear[0], &self.const3, &self.const3, &self.const3)
+        if ncon > 0:
+            CUTEST_csetup(&self.status, &funit, &const1, &self.const2, &nvar,
+                          &ncon, &x[0], &bl[0], &bu[0],
+                          &v[0], &cl[0], &cu[0], &equatn[0], &linear[0], &const3, &const3, &const3)
         else:
-            CUTEST_usetup( &self.status, &self.funit, &self.const1, &self.const2, &self.nvar, &self.x[0], &self.bl[0], &self.bu[0])
+            CUTEST_usetup( &self.status, &funit, &const1, &self.const2, &nvar, &x[0], &bl[0], &bu[0])
         
         self.cutest_error()
         
-        self.lin = np.where(linear==1)[0]
-        self.nln = np.where(linear==0)[0]
-        self.nlin = np.sum(linear)
-        self.nnln = self.ncon - self.nlin
-        self.nnzh = 0
-        self.nnzj = 0
+        lin = np.where(linear==1)[0]
+        nln = np.where(linear==0)[0]
+        nlin = np.sum(linear)
+        nnln = ncon - nlin
+        nnzh = 0
+        nnzj = 0
 
-        if self.ncon > 0:
-            CUTEST_cdimsh(&self.status, &self.nnzh)
-            CUTEST_cdimsj(&self.status, &self.nnzj)
-            self.nnzj -= self.nvar
+        if ncon > 0:
+            CUTEST_cdimsh(&self.status, &nnzh)
+            CUTEST_cdimsj(&self.status, &nnzj)
+            nnzj -= nvar
         else:
-            CUTEST_udimsh(&self.status, &self.nnzh)
+            CUTEST_udimsh(&self.status, &nnzh)
         self.cutest_error()
    
-        FORTRAN_close(&self.const2, &self.status)#funit, &self.status)
+        FORTRAN_close(&self.const2, &self.status)#funit, &status)
         self.cutest_error()
-
-    def cutest_cfn(self, double[:] x, double f, double[:] c):
-        """
-        Compute objective and constraints functions
-        """
-
-        CUTEST_cfn( &self.status, &self.nvar, &self.ncon, &x[0], &f, &c[0] )
-        return np.asarray(c), f
-            
-    def cutest_ufn(self, double[:] x, double f):
-        """
-        Compute objective function for problem without constraint
-        input:
-        -x: array
-        -f: double
-        """
-        CUTEST_ufn( &self.status, &self.nvar, &x[0], &f)
-        return f
-
-    def cutest_cofg(self, double[:] x, double f, double[:] g, logical grad):
-        """ Compute objective gradient """
-
-        CUTEST_cofg( &self.status, &self.nvar, &x[0], &f, &g[0], &grad)
-        return f, np.asarray(g)
+    
+        res = {'nvar':nvar, 'ncon':ncon, 'nlin':nlin, 'nnln':nlin, 'nnzh':nlin, 'nnzj':nnzj, 'name':self.name, 'x':x, 'bl':bl, 'bu':bu, 'v':v, 'cl':cl, 'cu':cu, 'lin':lin, 'nln':nln}
+        return res
 
     def cutest_error(self):
         """Analyse error return from C function """
@@ -326,67 +305,114 @@ cdef class Cutest:
             else:
                 print('unknow error')
 
+    def cutest_cfn(self, int nvar, int ncon, double[:] x, logical cons):
+        """
+        Compute objective and constraints functions
+        """
+        cdef double f
+        cdef double[:] c
+        c = np.zeros((ncon,), dtype=np.double)
+        CUTEST_cfn(&self.status, &nvar, &ncon, &x[0], &f, &c[0])
+        self.cutest_error()
+        if cons == 0 :
+            return f
+        else : 
+            if ncon == 1 :
+                return c
+            else :
+                return np.asarray(c)
+
+    def cutest_ufn(self, int nvar, int ncon, double[:] x):
+        """
+        Compute objective function for problem without constraint
+        """
+        cdef double f
+        CUTEST_ufn( &self.status, &nvar, &x[0], &f)
+        self.cutest_error()
+        return f
+
+    def cutest_ugr(self, int nvar, int ncon, double[:] x):
+        """ Compute objective gradient """
+    
+        cdef double[:] g = np.zeros((nvar,),dtype=np.double)
+        CUTEST_ugr(&self.status, &nvar, &x[0], &g[0])
+        self.cutest_error()
+        return np.asarray(g)
+
+    def cutest_cofg(self, int nvar, int ncon, double[:] x):
+        """ Compute objective gradient """
+
+        cdef double[:] g = np.zeros((nvar,),dtype=np.double)
+        cdef logical grad = 1
+        cdef double f
+        CUTEST_cofg( &self.status, &nvar, &x[0], &f, &g[0], &grad)
+        self.cutest_error()  	 
+        return np.asarray(g)
+
+    def cutest_ccifg(self, int nvar, int ncon, int i, double[:] x, logical grad):
+        """ Evaluate i-th constraint at x """
+        cdef double ci
+        cdef double[:] gci
+        if grad == 0 :
+            CUTEST_ccifg(&self.status, &nvar, &i, &x[0], &ci, NULL, &grad)
+        else : 
+            gci = np.zeros((nvar,),dtype=np.double)
+            CUTEST_ccifg(&self.status, &nvar, &i, &x[0], &ci, &gci[0], &grad)	 
+        self.cutest_error()
+        if grad == 0 : 
+            return ci
+        else :
+            return np.asarray(gci)
+
+    def cutest_udh(self, int nvar, double[:] x):
+        """ Evaluate Hessian """
+        cdef double[:] h = np.zeros((nvar*nvar,),dtype=np.double)
+    
+        CUTEST_udh(&self.status, &nvar, &x[0], &nvar, &h[0])
+        self.cutest_error()
+        return np.reshape(h, [nvar, nvar])
+
+    def cutest_cdh(self, int nvar, int ncon, double[:] x, double[:] z ) :
+        """ Evaluate Hessian """
+        cdef double[:] h = np.zeros((nvar*nvar,),dtype=np.double)
+    
+        CUTEST_cdh(&self.status, &nvar, &ncon, &x[0], &z[0], &nvar, &h[0])
+        self.cutest_error()
+        return np.reshape(h, [nvar, nvar])
+ 
+    def cutest_hprod(self, int nvar, double[:] x, double[:] p):
+        """ 
+        Evaluate matrix-vector product between the Hessian of the Lagrangian and a vector
+        """
+        cdef logical goth = 0
+        cdef double [:] r = np.zeros((nvar,),dtype=np.double)
+        CUTEST_uhprod(&self.status, &nvar, &goth, &x[0], &p[0], &r[0])        
+        self.cutest_error()
+        return np.asarray(r)
+
+    def cutest_chprod(self, int nvar, int ncon, double[:] x, double[:]z, double[:] p):
+        """ 
+        Evaluate matrix-vector product between the Hessian of the Lagrangian and a vector
+        """
+        cdef logical goth = 0
+        cdef double [:] r = np.zeros((nvar,),dtype=np.double)
+        CUTEST_chprod(&self.status, &nvar, &ncon, &goth, &x[0], &z[0], &p[0], &r[0])
+        self.cutest_error()
+        return np.asarray(r)
+
     def __dealloc__(self):
         """
         Close the loaded problem
         """
         FORTRAN_close(&self.const2, &self.status)#funit, &self.status)
         self.cutest_error()
-        if self.ncon > 0:
+        try:
             CUTEST_cterminate(&self.status)
-        else:
+        except:
             CUTEST_uterminate(&self.status)
+        
         print'The problem %s is closed' % self.name
-
-#########Interface properties#########################
-
-    property x:
-        def __get__(self):
-            """x getter"""
-            return np.asarray(self.x)
-        def __set__(self, val):
-            self.x = val
-    property v: 
-        def __get__(self):
-            return np.asarray(self.v)
-
-    property bl:
-        def __get__(self):
-            return np.asarray(self.bl)
-
-    property bu:
-        def __get__(self):
-            return np.asarray(self.bu)
-
-    property cl:
-        def __get__(self):
-            return np.asarray(self.cl)
-
-    property cu:
-        def __get__(self):
-            return np.asarray(self.cu)
-
-    property nvar:
-        def __get__(self):
-            return self.nvar
-
-    property ncon:
-        def __get__(self):
-            return self.ncon
-
-    property nnzj:
-        def __get__(self):
-            return self.nnzj
-
-    property nnzh:
-        def __get__(self):
-            return self.nnzh
-
-    property lin:
-        def __get__(self):
-            return np.asarray(self.lin)
 
     property status:
         def __get__(self):
             return self.status
-
