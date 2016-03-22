@@ -1,5 +1,8 @@
 #*-coding:Utf-8 -*
-import os, importlib, sys, subprocess, numpy as np
+import os
+import importlib
+import sys
+import numpy as np
 from nlp.model.nlpmodel import NLPModel
 from tools import compile
 
@@ -9,12 +12,12 @@ class CUTEstModel(NLPModel) :
     - m : number of constraints
     - nnzj : number of nonzeros constraint in Jacobian
     - nnzh : number of nonzeros in Hessian of Lagrangian    
-    - x : initial estimate of the solution of the problem
-    - bl : lower bounds on the variables
-    - bu : upper bounds on the variables
-    - v : initial estimate of the Lagrange multipliers
-    - cl : lower bounds on the inequality constraints
-    - cu : upper bounds on the inequality constraints
+    - x0 : initial estimate of the solution of the problem
+    - Lvar : lower bounds on the variables
+    - Uvar : upper bounds on the variables
+    - pi0 : initial estimate of the Lagrange multipliers
+    - Lcon : lower bounds on the inequality constraints
+    - Ucon : upper bounds on the inequality constraints
     - equatn : logical array whose i-th component is 1 if the i-th constraint is an equation
     - linear : a logical array whose i-th component is 1 if the i-th constraint is  linear
     - name : name of the problem 
@@ -23,18 +26,18 @@ class CUTEstModel(NLPModel) :
     def __init__(self, name):
         if name[-4:] == ".SIF":
             name = name[:-4]
-        cur_dir = os.getcwd() 
+            
         directory = compile(name)
         os.chdir(directory)
-        cc = importlib.import_module(name) 
-        self.lib = cc.Cutest(name, "OUTSDIF.d")
-        kwargs = {'x0':self.lib.x, 'pi0':self.lib.v, 'Lvar':self.lib.bl, 'Uvar':self.lib.bu, 'Lcon':self.lib.cl, 'Ucon':self.lib.cu} 
-        NLPModel.__init__(self, self.lib.nvar, self.lib.ncon, name, **kwargs)
-        self.nnzj = self.lib.nnzj
-        self.nnzh = self.lib.nnzh
-        self.directory = directory
-        #self._nlin = len(self.lib.lin) In the newest NLPy, it's already compiled
-        os.chdir(cur_dir)
+        cc = importlib.import_module(name)
+        self.lib = cc.Cutest(name)
+        prob = self.lib.loadProb("OUTSDIF.d")
+        kwargs = {'x0':prob['x'], 'pi0':prob['v'], 'Lvar':prob['bl'], 'Uvar':prob['bu'], 'Lcon':prob['cl'], 'Ucon':prob['cu']} 
+        NLPModel.__init__(self, prob['nvar'], prob['ncon'], name, **kwargs)
+        self.nnzj = prob['nnzj']
+        self.nnzh = prob['nnzh']
+        #self._nlin = len(prob['lin']) In the newest NLPy, it's already compiled
+        
 
     def obj(self,x, **kwargs):
         """ 
@@ -42,9 +45,9 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m > 0:
-            f = self.lib.cutest_cfn(x, 0)
+            f = self.lib.cutest_cfn(self.n, self.m, x, 0)
         else:
-            f = self.lib.cutest_ufn(x)
+            f = self.lib.cutest_ufn(self.n, self.m, x)
         return f
 
     def grad(self, x, **kwargs):
@@ -53,10 +56,10 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m > 0:
-            g = self.lib.cutest_cofg(x)
+            g = self.lib.cutest_cofg(self.n, self.m, x)
         else:
-            g = self.lib.cutest_ugr(x)
-        return g
+            g = self.lib.cutest_ugr(self.n, self.m, x)
+            return g
 
     def cons(self, x, **kwargs):
         """
@@ -68,7 +71,7 @@ class CUTEstModel(NLPModel) :
         elif i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         else :
-            return self.lib.cutest_cfn(i, x, 1)
+            return self.lib.cutest_cfn(self.n, self.m, i, x, 1)
 
     def icons(self, i, x, **kwargs):
         """
@@ -80,7 +83,7 @@ class CUTEstModel(NLPModel) :
         elif i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         else :
-            return self.lib.cutest_ccifg(i, x, 0)
+            return self.lib.cutest_ccifg(self.n, self.m, i, x, 0)
             
         
     def igrad(self, i, x, **kwargs):
@@ -94,7 +97,7 @@ class CUTEstModel(NLPModel) :
         elif i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         else :
-            return self.lib.cutest_ccifg(i, x, 1)
+            return self.lib.cutest_ccifg(self.n, self.m, i, x, 1)
 
 
     # Evaluate i-th constraint gradient at x
@@ -117,9 +120,9 @@ class CUTEstModel(NLPModel) :
             if z==None :
                 raise ValueError('the Lagrange multipliers need to be specified')
             else :
-                res = self.lib.cutest_cdh(x, z)
+                res = self.lib.cutest_cdh(self.n, self.m, x, z)
         else :
-            res = self.lib.cutest_udh(x)
+            res = self.lib.cutest_udh(self.n, x)
         return res
 
     # Evaluate matrix-vector product between
@@ -134,9 +137,9 @@ class CUTEstModel(NLPModel) :
         if self.m > 0 :
             if z==None :
                 raise ValueError('the Lagrange multipliers need to be specified')
-            res = self.lib.cutest_chprod(x, z, p)
+            res = self.lib.cutest_chprod(self.n, self.m, x, z, p)
         else :
-            res = self.lib.cutest_hprod(x, p)
+            res = self.lib.cutest_hprod(self.n, x, p)
         return res
 
     # Evaluate matrix-vector product between
@@ -160,10 +163,3 @@ class CUTEstModel(NLPModel) :
             Hx = self.hess(x)
             k = k + 1
         return x
-
-    def __del__(self):
-        """Delete problem"""
-        sys.modules[self.name] = None
-        cmd = ['rm']+['-rf']+[self.directory]
-        subprocess.call(cmd)
-        
