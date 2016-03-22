@@ -1,9 +1,6 @@
-import os
-import sys
-import subprocess
-import ConfigParser
-import numpy
+import os, sys, cutest, tempfile, subprocess, ConfigParser, numpy as np
 from sys import platform
+from distutils import sysconfig
 
 CUTEST_ARCH = os.getenv('MYARCH')
 CUTEST_DIR = os.getenv('CUTEST')
@@ -28,10 +25,9 @@ elif platform == "win32":
 
 def compile(problem):
     """Decode SIF problem and compile shared library."""
-    from distutils import sysconfig
-    import tempfile
-    import cutest
-    import numpy as np
+    #from distutils import sysconfig
+    #import tempfile
+    #import cutest
 
     cutest_config = ConfigParser.SafeConfigParser()
     
@@ -89,8 +85,7 @@ def compile(problem):
     subprocess.call(cmd)
 
     # Clean the reposite
-    subprocess.call(['cp', 'OUTSDIF.d', 'OUT.d']) #we rename the fname otherwise too long for cython
-    subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o','OUTSDIF.D'])
+    subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o'])
     
     os.chdir(cur_path)
     return directory
