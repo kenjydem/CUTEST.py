@@ -228,6 +228,7 @@ cdef class Cutest :
     cdef int status
     cdef int const2
     cdef char * name
+    cdef logical somethingTrue, somethingFalse
     def __init__(self, char* name):
         """
         Initialization of the class 
@@ -235,6 +236,8 @@ cdef class Cutest :
         self.status = 0
         self.const2 = 6
         self.name = name
+        self.somethingFalse = 0
+        self.somethingTrue = 1
 
     def loadProb(self, char* fname):
         cdef int funit, nvar, ncon, iout, io_buffer, nlin, nnln, nnzh, nnzj, const1, const3 
@@ -256,8 +259,8 @@ cdef class Cutest :
         bl = np.empty((nvar,), dtype = np.double)
         bu = np.empty((nvar,), dtype = np.double)
         v = np.empty((nvar,), dtype = np.double)
-        cl = np.empty((nvar,), dtype = np.double)
-        cu = np.empty((nvar,), dtype = np.double)
+        cl = np.empty((ncon,), dtype = np.double)
+        cu = np.empty((ncon,), dtype = np.double)
         
         cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
         cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
@@ -305,6 +308,7 @@ cdef class Cutest :
             else:
                 print('unknow error')
 
+    ## obj & cons
     def cutest_cfn(self, int nvar, int ncon, double[:] x, logical cons):
         """
         Compute objective and constraints functions
@@ -322,6 +326,7 @@ cdef class Cutest :
             else :
                 return np.asarray(c)
 
+    ### obj
     def cutest_ufn(self, int nvar, int ncon, double[:] x):
         """
         Compute objective function for problem without constraint
@@ -331,6 +336,7 @@ cdef class Cutest :
         self.cutest_error()
         return f
 
+    ### grad
     def cutest_ugr(self, int nvar, int ncon, double[:] x):
         """ Compute objective gradient """
     
@@ -339,16 +345,17 @@ cdef class Cutest :
         self.cutest_error()
         return np.asarray(g)
 
+    ### grad
     def cutest_cofg(self, int nvar, int ncon, double[:] x):
         """ Compute objective gradient """
 
         cdef double[:] g = np.zeros((nvar,),dtype=np.double)
-        cdef logical grad = 1
         cdef double f
-        CUTEST_cofg( &self.status, &nvar, &x[0], &f, &g[0], &grad)
+        CUTEST_cofg( &self.status, &nvar, &x[0], &f, &g[0], &self.somethingTrue)
         self.cutest_error()  	 
         return np.asarray(g)
 
+    ### igrad & icons
     def cutest_ccifg(self, int nvar, int ncon, int i, double[:] x, logical grad):
         """ Evaluate i-th constraint at x """
         cdef double ci
@@ -364,41 +371,98 @@ cdef class Cutest :
         else :
             return np.asarray(gci)
 
+    ### ihess & hess
     def cutest_udh(self, int nvar, double[:] x):
         """ Evaluate Hessian """
         cdef double[:] h = np.zeros((nvar*nvar,),dtype=np.double)
     
         CUTEST_udh(&self.status, &nvar, &x[0], &nvar, &h[0])
         self.cutest_error()
-        return np.reshape(h, [nvar, nvar])
+        return np.reshape(h, [nvar, nvar], order='F')
 
+    ### hess
     def cutest_cdh(self, int nvar, int ncon, double[:] x, double[:] z ) :
         """ Evaluate Hessian """
         cdef double[:] h = np.zeros((nvar*nvar,),dtype=np.double)
     
         CUTEST_cdh(&self.status, &nvar, &ncon, &x[0], &z[0], &nvar, &h[0])
         self.cutest_error()
-        return np.reshape(h, [nvar, nvar])
+        return np.reshape(h, [nvar, nvar], order='F')
  
+    ### hprod
     def cutest_hprod(self, int nvar, double[:] x, double[:] p):
         """ 
         Evaluate matrix-vector product between the Hessian of the Lagrangian and a vector
         """
-        cdef logical goth = 0
         cdef double [:] r = np.zeros((nvar,),dtype=np.double)
-        CUTEST_uhprod(&self.status, &nvar, &goth, &x[0], &p[0], &r[0])        
+        CUTEST_uhprod(&self.status, &nvar, &self.somethingFalse, &x[0], &p[0], &r[0])        
         self.cutest_error()
         return np.asarray(r)
 
+    ### hprod
     def cutest_chprod(self, int nvar, int ncon, double[:] x, double[:]z, double[:] p):
         """ 
         Evaluate matrix-vector product between the Hessian of the Lagrangian and a vector
         """
-        cdef logical goth = 0
         cdef double [:] r = np.zeros((nvar,),dtype=np.double)
-        CUTEST_chprod(&self.status, &nvar, &ncon, &goth, &x[0], &z[0], &p[0], &r[0])
+        CUTEST_chprod(&self.status, &nvar, &ncon, &self.somethingFalse, &x[0], &z[0], &p[0], &r[0])
         self.cutest_error()
         return np.asarray(r)
+    
+    ### sgrad
+    def cutest_cofsg(self, int nvar, double[:] x) :
+        cdef double [:] g = np.zeros((nvar,),dtype=np.double)
+        cdef int [:] ir = np.zeros((nvar,),dtype=np.int32)
+        cdef double f
+        cdef int nnzgci = nvar
+        CUTEST_cofsg(&self.status, &nvar, &x[0], &f, &nnzgci, &nnzgci, &g[0], &ir[0], &self.somethingTrue)
+        self.cutest_error()
+        return g.base, ir.base
+
+    ### sigrad
+    def cutest_ccifsg(self, int nvar, int nnzj, int i, double[:] x):
+        """ Evaluate i-th constraint at x :
+        Gradient is returned as a sparse vector
+        """
+        cdef double ci
+        cdef double[:] gci = np.zeros((nvar,),dtype=np.double)
+        cdef int nnzgci = nnzj
+        if nnzj > nvar :
+            nnzgci = nvar
+        
+        cdef int [:] ir = np.zeros((nvar,),dtype=np.int32)
+        CUTEST_ccifsg(&self.status, &nvar, &i, &x[0], &ci, &nnzgci, &nnzgci,
+                          &gci[0], &ir[0], &self.somethingTrue)
+        self.cutest_error()
+        return np.asarray(gci), np.asarray(ir)
+
+    ### jac
+    def cutest_ccfg(self, int nvar, int ncon, double[:] x) :
+        cdef double[:] j = np.zeros((ncon*nvar,),dtype=np.double)
+        cdef double[:] c = np.zeros((nvar,),dtype=np.double)
+        CUTEST_ccfg(&self.status, &nvar, &ncon, &x[0], &c[0], &self.somethingFalse,
+                          &ncon, &nvar, &j[0], &self.somethingTrue);
+        self.cutest_error()
+        return np.reshape(j, [ncon, nvar], order='F')
+
+    ### jprod & jtprod
+    def cutest_cjprod(self, int nvar, int ncon, double[:] x, double[:] z, logical transpose) :
+        cdef double[:] res 
+        if (transpose == 0) :
+            res = np.zeros((ncon,),dtype=np.double)
+            CUTEST_cjprod(&self.status, &nvar, &ncon, &self.somethingFalse, &self.somethingFalse, &x[0], &z[0], &nvar, &res[0], &ncon)
+        else :
+            res = np.zeros((nvar,),dtype=np.double)
+            CUTEST_cjprod(&self.status, &nvar, &ncon, &self.somethingFalse, &self.somethingTrue, &x[0], &z[0], &ncon, &res[0], &nvar)
+        self.cutest_error()
+        return res.base
+    
+    ### ihess
+    def cutest_cidh(self, int nvar, double[:] x, int i) :
+        cdef double[:] h = np.zeros((nvar*nvar,),dtype=np.double)
+        CUTEST_cidh(&self.status, &nvar, &x[0], &i,  &nvar, &h[0])
+        self.cutest_error()
+        return np.reshape(h, [nvar, nvar], order='F')
 
     def __dealloc__(self):
         """
@@ -406,11 +470,6 @@ cdef class Cutest :
         """
         FORTRAN_close(&self.const2, &self.status)#funit, &self.status)
         self.cutest_error()
-        try:
-            CUTEST_cterminate(&self.status)
-        except:
-            CUTEST_uterminate(&self.status)
-        
         print'The problem %s is closed' % self.name
 
     property status:

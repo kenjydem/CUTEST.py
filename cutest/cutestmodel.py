@@ -1,8 +1,5 @@
 #*-coding:Utf-8 -*
-import os
-import importlib
-import sys
-import numpy as np
+import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
 from tools import compile
 
@@ -28,6 +25,7 @@ class CUTEstModel(NLPModel) :
             name = name[:-4]
             
         directory = compile(name)
+        cur_dir = os.getcwd()
         os.chdir(directory)
         cc = importlib.import_module(name)
         self.lib = cc.Cutest(name)
@@ -36,6 +34,8 @@ class CUTEstModel(NLPModel) :
         NLPModel.__init__(self, prob['nvar'], prob['ncon'], name, **kwargs)
         self.nnzj = prob['nnzj']
         self.nnzh = prob['nnzh']
+        self.directory = directory
+        os.chdir(cur_dir)
         #self._nlin = len(prob['lin']) In the newest NLPy, it's already compiled
         
 
@@ -46,10 +46,11 @@ class CUTEstModel(NLPModel) :
         """
         if self.m > 0:
             f = self.lib.cutest_cfn(self.n, self.m, x, 0)
-        else:
-            f = self.lib.cutest_ufn(self.n, self.m, x)
+            return f    
+        
+        f = self.lib.cutest_ufn(self.n, self.m, x)
         return f
-
+    
     def grad(self, x, **kwargs):
         """
         Compute objective gradient at x:
@@ -59,7 +60,21 @@ class CUTEstModel(NLPModel) :
             g = self.lib.cutest_cofg(self.n, self.m, x)
         else:
             g = self.lib.cutest_ugr(self.n, self.m, x)
-            return g
+        return g
+
+    def sgrad(self, x) : 
+        """
+        Compute objective gradient at x:
+        Gradient is returned as a sparse vector
+        - x: Evaluated point (numpy array)
+        """
+        if self.m == 0 :
+            print 'the problem is unconstrained : the dense gradient is return instead'
+            return  self.grad(x)
+
+        g, ir = self.lib.cutest_cofsg(self.n, x)
+        ir[ir.nonzero()] = ir[ir.nonzero()] - 1
+        return sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
 
     def cons(self, x, **kwargs):
         """
@@ -68,10 +83,7 @@ class CUTEstModel(NLPModel) :
         """
         if self.m == 0 :
             raise TypeError('the problem ' + self.name + ' does not have constraints')
-        elif i > self.m :
-            raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        else :
-            return self.lib.cutest_cfn(self.n, self.m, i, x, 1)
+        return self.lib.cutest_cfn(self.n, self.m, x, 1)
 
     def icons(self, i, x, **kwargs):
         """
@@ -80,10 +92,9 @@ class CUTEstModel(NLPModel) :
         """
         if self.m == 0 :
             raise TypeError('the problem ' + self.name + ' does not have constraints')
-        elif i > self.m :
+        if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        else :
-            return self.lib.cutest_ccifg(self.n, self.m, i, x, 0)
+        return self.lib.cutest_ccifg(self.n, self.m, i, x, 0)
             
         
     def igrad(self, i, x, **kwargs):
@@ -103,13 +114,21 @@ class CUTEstModel(NLPModel) :
     # Evaluate i-th constraint gradient at x
     # Gradient is returned as a sparse vector
     def sigrad(self, i, x, **kwargs):
-        raise NotImplementedError, 'This method must be subclassed.'
-
-    # Evaluate constraints Jacobian at x
+        if self.m == 0 :
+            raise TypeError('the problem ' + self.name + ' does not have constraints')
+        if i > self.m :
+            raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
+        
+        g, ir = self.lib.cutest_ccifsg(self.n, self.nnzj, i, x)
+        ir[ir.nonzero()] = ir[ir.nonzero()] - 1
+        return sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
+            
     def jac(self, x, **kwargs):
-        raise NotImplementedError, 'This method must be subclassed.'
-
-    # Evaluate Lagrangian Hessian at (x,z)
+        """  Evaluate constraints Jacobian at x """
+        if self.m == 0 :
+            raise TypeError('the problem ' + self.name + ' does not have constraints')
+        return self.lib.cutest_ccfg(self.n, self.m, x)
+            
     def hess(self, x, z=None, **kwargs):
         """
          Evaluate Lagrangian Hessian at (x,z) if the problem is
@@ -119,14 +138,26 @@ class CUTEstModel(NLPModel) :
         if self.m > 0 :
             if z==None :
                 raise ValueError('the Lagrange multipliers need to be specified')
-            else :
-                res = self.lib.cutest_cdh(self.n, self.m, x, z)
+            res = self.lib.cutest_cdh(self.n, self.m, x, z)
         else :
             res = self.lib.cutest_udh(self.n, x)
         return res
 
-    # Evaluate matrix-vector product between
-    # the Hessian of the Lagrangian and a vector
+
+    def ihess(self, x, i) : 
+        """
+        Return the dense Hessian of the objective or of a constraint. The
+        function index is ignored if the problem is unconstrained.
+        Usage:  Hi = ihess(x, i)
+        """
+        if self.m == 0 :
+            print 'Warning : the problem is unconstrained, the dense Hessian of the objective is returned'
+            return self.lib.cutest_udh(self.n, x)
+        if i > self.m :
+                raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
+        return self.lib.cutest_cidh(self.n, x, i)
+
+
     def hprod(self, x, z, p, **kwargs):
         """ 
         Evaluate matrix-vector product between the Hessian of the Lagrangian and a vector
@@ -142,24 +173,36 @@ class CUTEstModel(NLPModel) :
             res = self.lib.cutest_hprod(self.n, x, p)
         return res
 
-    # Evaluate matrix-vector product between
-    # the Hessian of the i-th constraint and a vector
+    
     def hiprod(self, i, x, p, **kwargs):
-        raise NotImplementedError, 'This method must be subclassed.'
+        """
+        Evaluate matrix-vector product between
+        the Hessian of the i-th constraint and a vector
+        """
+        if self.m == 0 :
+            raise TypeError('the problem ' + self.name + ' does not have constraints')
+        if i > self.m :
+            raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
+        return np.dot(self.lib.cutest_cidh(self.n, x, i), p)
 
-    def unewton(self):
-        """ solve the problem using Newton's algorithm """
-        if self.m  > 0 :
-            raise TypeError('This method only works on unconstrained problems')
-            
-        x = self.x0
-        gx = self.grad(x)
-        Hx = self.hess(x)
-        k = 0
-        while(np.linalg.norm(gx) > 1.0e-6):
-            print "%2d  %7.1e" % (k, np.linalg.norm(gx))
-            x -= np.linalg.solve(Hx, gx)
-            gx = self.grad(x)
-            Hx = self.hess(x)
-            k = k + 1
-        return x
+    def jprod(self, x, z) :
+        """
+        Evaluate the matrix-vector product between the Jacobian and a vector
+        """
+        if self.m == 0 :
+            raise ValueError('this function is only available for constrained problems')
+        return self.lib.cutest_cjprod(self.n, self.m, x, z, 0)
+    
+    def jtprod(self, x, z) :
+        """
+        Evaluate the matrix-vector product between the transpose Jacobian and a vector
+        """
+        if self.m == 0 :
+            raise ValueError('this function is only available for constrained problems')
+        return self.lib.cutest_cjprod(self.n, self.m, x, z, 1)
+
+    def __del__(self):
+        """Delete problem"""
+        del(sys.modules[self.name])
+        cmd = ['rm']+['-rf']+[self.directory]
+        subprocess.call(cmd)
