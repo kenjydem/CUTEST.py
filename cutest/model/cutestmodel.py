@@ -1,7 +1,7 @@
 #*-coding:Utf-8 -*
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
-from tools import compile
+from cutest.tools.compile import compile_SIF
 
 class CUTEstModel(NLPModel) :
     """Classe définissant un problème :
@@ -24,7 +24,7 @@ class CUTEstModel(NLPModel) :
         if name[-4:] == ".SIF":
             name = name[:-4]
             
-        directory = compile(name)
+        directory = compile_SIF(name)
         cur_dir = os.getcwd()
         os.chdir(directory)
         cc = importlib.import_module(name)

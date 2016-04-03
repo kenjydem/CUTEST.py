@@ -6,6 +6,6 @@ setup(
     description='Python interface for CUTEst library',
     author=['Kenjy Demeester','Farooq Sanni'],
     package_dir={"cutest": "cutest"},
-    package_data={'cutest': ['data/*.cfg','data/*.pyx','data/*.pxd']},
+    package_data={'cutest': ['model/*.py','model/src/*.cfg','model/src/*.pyx','model/src/*.pxd','optimize/*py','tools/*.py']},
     packages=["cutest"],
     )

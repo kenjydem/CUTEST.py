@@ -23,16 +23,14 @@ elif platform == "darwin":
 elif platform == "win32":
     raise(ValueError, "Windows platforms are currently not supported")
 
-def compile(problem):
+def compile_SIF(problem):
     """Decode SIF problem and compile shared library."""
-    #from distutils import sysconfig
-    #import tempfile
-    #import cutest
 
     cutest_config = ConfigParser.SafeConfigParser()
     
     #Find automatic the folder of site.cfg
-    data_dir = os.path.join(os.path.dirname(cutest.__file__),'data')
+    data_dir = os.path.join(os.path.dirname(cutest.__file__),'model','src')
+    print data_dir
     cutest_config.read(os.path.join(data_dir, 'site.cfg'))
     
     default_library_dir = cutest_config.get('DEFAULT', 'library_dirs').split(os.pathsep)
