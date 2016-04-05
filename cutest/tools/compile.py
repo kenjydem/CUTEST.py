@@ -67,7 +67,7 @@ def compile_SIF(problem):
     dat = ["OUTSDIF.d", "AUTOMAT.d"]
 
     # Create problem .o from .c
-    subprocess.call([ccompiler,"-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
+    subprocess.call([ccompiler,"-w","-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
 
     # Compile source files.
     exit_code = subprocess.call([fcompiler, "-c"] +  [src + ".f" for src in srcs])

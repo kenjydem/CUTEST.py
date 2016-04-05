@@ -8,7 +8,7 @@ class CG(object):
     optimization problems by conjugate gradient with different search 
     lines methods
     """
-    def __init__(self, model, x0=None, itermax=1000, etol=1.0e-5, strategy='HZ'):
+    def __init__(self, model, x0=None, itermax=1000, etol=1.0e-5, strategy='HZ', save = False):
         """
         Conjuguate gradient for non linear unconstraint problem 
         """
@@ -31,7 +31,9 @@ class CG(object):
         self.k = 0
         self.etol = etol
         self.itermax = itermax
-    
+   
+        self.save_data = save
+
     def search(self, strategy= None):
 
         if strategy is not None:
@@ -39,6 +41,9 @@ class CG(object):
 
         print " k   f         ‖∇f‖      step      β "
         print "%2d  %9.2e  %7.1e          " % (self.k, self.f, self.gNorm)
+        if self.save_data:
+            result = " k   x           y           f  \n"
+        
         while self.gNorm > self.etol and self.k < self.itermax:
             
             # Search step with Strong Wolfe
@@ -50,10 +55,11 @@ class CG(object):
                                          lambda t: self.model.grad(self.x+t*self.p),
                                          gtol= 0.1,
                                          ftol = 1.0e-4)
-            
-            # At this moment,gk is updated
             SWLS.search()
         
+            if self.save_data:
+                result += "%2d  %10.3e  %10.3e  %9.2e \n" % (self.k, self.x[0], self.x[1], self.f)
+
             #Seach line search
             self.x += SWLS.stp * self.p
         
@@ -80,7 +86,12 @@ class CG(object):
                     
             #ipdb.set_trace()
             print "%2d  %9.2e  %7.1e  %7.1e %7.1e" % (self.k, self.f, self.gNorm, SWLS.stp, bk)
-    
+
+        if self.save_data:
+            file_name = "result_CG_" + self.strategy +".txt"
+            result_file = open(file_name , "w")
+            result_file.write(result)
+            result_file.close
         return self.x
 
     def strategy_FR(self, gk) :
