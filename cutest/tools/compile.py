@@ -4,7 +4,6 @@ from distutils import sysconfig
 
 CUTEST_ARCH = os.getenv('MYARCH')
 CUTEST_DIR = os.getenv('CUTEST')
-#CUTEST_LIB = os.getenv('CUTESTLIB')
 
 if CUTEST_DIR is None or CUTEST_ARCH is None:
     raise(KeyError, "Please check that CUTEST and MYARCH are set")
