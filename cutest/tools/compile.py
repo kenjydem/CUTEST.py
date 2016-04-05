@@ -85,6 +85,7 @@ def compile_SIF(problem):
     subprocess.call(['rm','ELFUN.f','EXTER.f','GROUP.f','RANGE.f','ELFUN.o','EXTER.o','GROUP.o','RANGE.o'])
     
     os.chdir(cur_path)
+
     return directory
 
 
