@@ -1,6 +1,9 @@
 #*-coding:Utf-8 -*
 import os, sys, importlib, subprocess, numpy as np
-from nlp.model.nlpmodel import NLPModel
+#from nlp.model.nlpmodel import NLPModel
+import scipy.sparse as sparse
+sys.path.append('/home/sannif/nlpy/nlpy/model')
+from nlp import NLPModel
 from cutest.tools.compile import compile_SIF
 
 class CUTEstModel(NLPModel) :
