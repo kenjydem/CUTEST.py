@@ -1,9 +1,7 @@
 #*-coding:Utf-8 -*
 import os, sys, importlib, subprocess, numpy as np
-#from nlp.model.nlpmodel import NLPModel
+from nlp.model.nlpmodel import NLPModel
 import scipy.sparse as sparse
-sys.path.append('/home/sannif/nlpy/nlpy/model')
-from nlp import NLPModel
 from cutest.tools.compile import compile_SIF
 
 class CUTEstModel(NLPModel) :
@@ -95,6 +93,8 @@ class CUTEstModel(NLPModel) :
         """
         if self.m == 0 :
             raise TypeError('the problem ' + self.name + ' does not have constraints')
+        if i==0:
+            raise ValueError('i must be between 1 and '+str(self.m))
         if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         return self.lib.cutest_ccifg(self.n, self.m, i, x, 0)
@@ -108,10 +108,11 @@ class CUTEstModel(NLPModel) :
         """
         if self.m == 0 :
             raise TypeError('the problem ' + self.name + ' does not have constraints')
-        elif i > self.m :
+        if i==0:
+            raise ValueError('i must be between 1 and '+str(self.m))
+        if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        else :
-            return self.lib.cutest_ccifg(self.n, self.m, i, x, 1)
+        return self.lib.cutest_ccifg(self.n, self.m, i, x, 1)
 
 
     # Evaluate i-th constraint gradient at x
@@ -121,7 +122,9 @@ class CUTEstModel(NLPModel) :
             raise TypeError('the problem ' + self.name + ' does not have constraints')
         if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        
+        if i==0:
+            raise ValueError('i must be between 1 and '+str(self.m))
+
         g, ir = self.lib.cutest_ccifsg(self.n, self.nnzj, i, x)
         ir[ir.nonzero()] = ir[ir.nonzero()] - 1
         return sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
@@ -146,6 +149,34 @@ class CUTEstModel(NLPModel) :
             res = self.lib.cutest_udh(self.n, x)
         return res
 
+    def shess(self, x, z=None) :
+        """
+        Evaluate the Hessian matrix of the Lagrangian, or of the objective if the problem
+        is unconstrained, in sparse format
+        """
+        if self.m > 0:
+            if (z==None):
+                raise ValueError('the Lagrange multipliers need to be specified')
+            h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, z)
+        else:
+            h, irow, jcol = self.lib.cutest_ush(self.n, self.nnzh, x)
+        
+        #on ne récupère que la partie triangulaire supérieure de h
+        # nous reconstruisons donc la matrice h       
+        offdiag = 0
+        for i in range(self.nnzh):
+            if irow[i] != jcol[i]:
+                k = self.nnzh + offdiag
+                irow[k] = jcol[i];
+                jcol[k] = irow[i];
+                h[k] = h[i];
+            offdiag += 1;
+        
+        h = h[irow.nonzero()]
+        irow = irow[irow.nonzero()] - 1
+        jcol = jcol[jcol.nonzero()] - 1
+
+        return sparse.coo_matrix((h, (irow, jcol)), shape=(self.n,self.n))
 
     def ihess(self, x, i) : 
         """
@@ -159,7 +190,32 @@ class CUTEstModel(NLPModel) :
         if i > self.m :
                 raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         return self.lib.cutest_cidh(self.n, x, i)
+        
+    def ishess(self, x, i) :
+        """
+        Evaluate the Hessian matrix of the i-th problem function (i=0 is the objective
+function), or of the objective if problem is unconstrained, in sparse format
+        """
+        if self.m == 0:
+             return self.shess(x,i)
+        if i > self.m :
+                raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
+        h, irow, jcol = self.lib.cutest_cish(self.n, self.nnzh, x, i)     
+        offdiag = 0
+        for i in range(self.nnzh):
+            if irow[i] != jcol[i]:
+                k = self.nnzh + offdiag
+                irow[k] = jcol[i];
+                jcol[k] = irow[i];
+                h[k] = h[i];
+            offdiag += 1;
+        
+        h = h[irow.nonzero()]
+        irow = irow[irow.nonzero()] - 1
+        jcol = jcol[jcol.nonzero()] - 1
 
+        return sparse.coo_matrix((h, (irow, jcol)), shape=(self.n,self.n))
+           
 
     def hprod(self, x, z, p, **kwargs):
         """ 
@@ -192,6 +248,9 @@ class CUTEstModel(NLPModel) :
         """
         Evaluate the matrix-vector product between the Jacobian and a vector
         """
+        dim = z.shape
+        if len(dim) != 1 or dim[0] != self.n :
+            raise ValueError('the vector z dimension should be ['+str(self.n) +' 1]')
         if self.m == 0 :
             raise ValueError('this function is only available for constrained problems')
         return self.lib.cutest_cjprod(self.n, self.m, x, z, 0)
@@ -200,6 +259,9 @@ class CUTEstModel(NLPModel) :
         """
         Evaluate the matrix-vector product between the transpose Jacobian and a vector
         """
+        dim = z.shape
+        if len(dim) != 1 or dim[0] != self.m :
+            raise ValueError('the vector z dimension should be ['+str(self.m)+' 1]')
         if self.m == 0 :
             raise ValueError('this function is only available for constrained problems')
         return self.lib.cutest_cjprod(self.n, self.m, x, z, 1)

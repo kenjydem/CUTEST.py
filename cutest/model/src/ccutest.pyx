@@ -1,3 +1,4 @@
+#-*- coding: utf-8; mode: python; tab-width: 4; -*-
 import os
 import platform
 import numpy as np
@@ -292,7 +293,7 @@ cdef class Cutest :
         FORTRAN_close(&self.const2, &self.status)#funit, &status)
         self.cutest_error()
     
-        res = {'nvar':nvar, 'ncon':ncon, 'nlin':nlin, 'nnln':nlin, 'nnzh':nlin, 'nnzj':nnzj, 'name':self.name, 'x':x, 'bl':bl, 'bu':bu, 'v':v, 'cl':cl, 'cu':cu, 'lin':lin, 'nln':nln}
+        res = {'nvar':nvar, 'ncon':ncon, 'nlin':nlin, 'nnln':nlin, 'nnzh':nnzh, 'nnzj':nnzj, 'name':self.name, 'x':x, 'bl':bl, 'bu':bu, 'v':v, 'cl':cl, 'cu':cu, 'lin':lin, 'nln':nln}
         return res
 
     def cutest_error(self):
@@ -463,6 +464,38 @@ cdef class Cutest :
         CUTEST_cidh(&self.status, &nvar, &x[0], &i,  &nvar, &h[0])
         self.cutest_error()
         return np.reshape(h, [nvar, nvar], order='F')
+
+    ### shess
+    def cutest_ush(self, int nvar, int nnzh, double[:] x) :
+        cdef double[:] h = np.zeros((2*nnzh,),dtype=np.double)
+        cdef int[:] irow = np.zeros((2*nnzh,),dtype=np.int32)
+        cdef int[:] jcol = np.zeros((2*nnzh,),dtype=np.int32)
+
+        CUTEST_ush(&self.status, &nvar, &x[0], &nnzh, &nnzh, &h[0],
+                          &irow[0], &jcol[0])
+        self.cutest_error()
+        return np.asarray(h), np.asarray(irow), np.asarray(jcol)
+    
+    def cutest_csh(self, int nvar, int ncon, int nnzh, double[:] x, double[:] v):
+        cdef double[:] h = np.zeros((2*nnzh,),dtype=np.double)
+        cdef int[:] irow = np.zeros((2*nnzh,),dtype=np.int32)
+        cdef int[:] jcol = np.zeros((2*nnzh,),dtype=np.int32)
+        
+        CUTEST_csh(&self.status, &nvar, &ncon, &x[0], &v[0],
+                   &nnzh, &nnzh, &h[0], &irow[0], &jcol[0])
+        self.cutest_error()
+        return np.asarray(h), np.asarray(irow), np.asarray(jcol)
+
+    ### ishess
+    def cutest_cish(self, int nvar, int nnzh, double[:] x, int i):
+        cdef double[:] h = np.zeros((2*nnzh,),dtype=np.double)
+        cdef int[:] irow = np.zeros((2*nnzh,),dtype=np.int32)
+        cdef int[:] jcol = np.zeros((2*nnzh,),dtype=np.int32)
+
+        CUTEST_cish(&self.status, &nvar, &x[0], &i, &nnzh, &nnzh, &h[0],
+                    &irow[0], &jcol[0])
+        self.cutest_error()
+        return np.asarray(h), np.asarray(irow), np.asarray(jcol)
 
     def __dealloc__(self):
         """
