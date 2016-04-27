@@ -3,6 +3,7 @@
 *.d
 *.pyc
 build/
+dist/
 .gitignore
 
 # Compiled source #
@@ -26,6 +27,7 @@ build/
 *.rar
 *.tar
 *.zip
+*.egg-info
 
 # Logs and databases #
 ######################
