@@ -1,6 +1,5 @@
 import numpy as np
 from nlp.ls.pyswolfe import StrongWolfeLineSearch
-import ipdb
 
 class CG(object):
     """
@@ -8,7 +7,7 @@ class CG(object):
     optimization problems by conjugate gradient with different search 
     lines methods
     """
-    def __init__(self, model, x0=None, itermax=1000, etol=1.0e-5, strategy='HZ', save = False):
+    def __init__(self, model, x0=None, itermax=1000, etol=1.0e-5, strategy='HZ'):
         """
         Conjuguate gradient for non linear unconstraint problem 
         """
@@ -32,7 +31,6 @@ class CG(object):
         self.etol = etol
         self.itermax = itermax
    
-        self.save_data = save
 
     def search(self, strategy= None):
 
@@ -41,8 +39,6 @@ class CG(object):
 
         print " k   f         ‖∇f‖      step      β "
         print "%2d  %9.2e  %7.1e          " % (self.k, self.f, self.gNorm)
-        if self.save_data:
-            result = " k   x           y           f  \n"
         
         while self.gNorm > self.etol and self.k < self.itermax:
             
@@ -57,9 +53,6 @@ class CG(object):
                                          ftol = 1.0e-4)
             SWLS.search()
         
-            if self.save_data:
-                result += "%2d  %10.3e  %10.3e  %9.2e \n" % (self.k, self.x[0], self.x[1], self.f)
-
             #Seach line search
             self.x += SWLS.stp * self.p
         
@@ -77,21 +70,14 @@ class CG(object):
             elif self.strategy == 'PR-FR':
                 bk = self.strategy_PR_FR(New_gk, y)
 
-            #ipdb.set_trace()
             self.p = -New_gk + bk * self.p
             self.f = self.model.obj(self.x)
             self.g = New_gk
             self.gNorm = np.linalg.norm(self.g)
             self.k += 1
                     
-            #ipdb.set_trace()
             print "%2d  %9.2e  %7.1e  %7.1e %7.1e" % (self.k, self.f, self.gNorm, SWLS.stp, bk)
 
-        if self.save_data:
-            file_name = "result_CG_" + self.strategy +".txt"
-            result_file = open(file_name , "w")
-            result_file.write(result)
-            result_file.close
         return self.x
 
     def strategy_FR(self, gk) :

@@ -143,7 +143,7 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m > 0 :
-            if z==None :
+            if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
             res = self.lib.cutest_cdh(self.n, self.m, x, z)
         else :
@@ -156,7 +156,7 @@ class CUTEstModel(NLPModel) :
         is unconstrained, in sparse format
         """
         if self.m > 0:
-            if (z==None):
+            if z is None:
                 raise ValueError('the Lagrange multipliers need to be specified')
             h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, z)
         else:
@@ -226,7 +226,7 @@ function), or of the objective if problem is unconstrained, in sparse format
         - p: A vector (numpy array)
         """
         if self.m > 0 :
-            if z==None :
+            if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
             res = self.lib.cutest_chprod(self.n, self.m, x, z, p)
         else :
