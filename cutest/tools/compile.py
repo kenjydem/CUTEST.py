@@ -29,8 +29,9 @@ def compile_SIF(problem):
     
     #Find automatic the folder of site.cfg
     data_dir = os.path.join(os.path.dirname(cutest.__file__),'model','src')
-    
-    cutest_config.read(os.path.join(data_dir, 'site.cfg'))
+    config_dir = os.path.join(os.path.dirname(cutest.__file__),'tools')
+
+    cutest_config.read(os.path.join(config_dir, 'site.cfg'))
     
     default_library_dir = cutest_config.get('DEFAULT', 'library_dirs').split(os.pathsep)
     default_include_dir = cutest_config.get('DEFAULT', 'include_dirs').split(os.pathsep)
