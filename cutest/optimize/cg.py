@@ -23,23 +23,20 @@ class CG(object):
         self.f = self.model.obj(self.x)
         self.g = self.model.grad(self.x)
         self.gNorm = np.linalg.norm(self.g)
-                                  
         self.strategy = strategy 
         self.p = -self.g.copy()
+        self.cos0 =  np.dot(self.g,self.p)/(self.gNorm*np.linalg.norm(self.p))                              
 
         self.k = 0
         self.etol = etol
         self.itermax = itermax
    
 
-    def search(self, strategy= None):
+    def solve(self, strategy= None):
 
         if strategy is not None:
             self.strategy = strategy
 
-        print " k   f         ‖∇f‖      step      β "
-        print "%2d  %9.2e  %7.1e          " % (self.k, self.f, self.gNorm)
-        
         while self.gNorm > self.etol and self.k < self.itermax:
             
             # Search step with Strong Wolfe
@@ -53,6 +50,12 @@ class CG(object):
                                          ftol = 1.0e-4)
             SWLS.search()
         
+            
+            if (np.mod(self.k,10)==0):
+                print"---------------------------------------"
+                print "iter   f       ‖∇f‖    step    cosθ"
+                print"---------------------------------------"
+            print "%2d  %9.2e  %7.1e %6.4f %9.6f " % (self.k, self.f, self.gNorm, SWLS.stp,self.cos0)
             #Seach line search
             self.x += SWLS.stp * self.p
         
@@ -69,14 +72,15 @@ class CG(object):
                 bk = self.strategy_PR_Plus(New_gk, y)
             elif self.strategy == 'PR-FR':
                 bk = self.strategy_PR_FR(New_gk, y)
+            else:
+                raise Exception ('Check your strategy name, used help if you need')
 
             self.p = -New_gk + bk * self.p
             self.f = self.model.obj(self.x)
             self.g = New_gk
             self.gNorm = np.linalg.norm(self.g)
+            self.cos0 =  np.dot(self.g,self.p)/(self.gNorm*np.linalg.norm(self.p)) 
             self.k += 1
-                    
-            print "%2d  %9.2e  %7.1e  %7.1e %7.1e" % (self.k, self.f, self.gNorm, SWLS.stp, bk)
 
         return self.x
 
