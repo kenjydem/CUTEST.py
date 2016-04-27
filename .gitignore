@@ -4,6 +4,7 @@
 *.pyc
 build/
 dist/
+*egg-info/
 .gitignore
 
 # Compiled source #
