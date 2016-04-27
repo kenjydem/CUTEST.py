@@ -69,14 +69,14 @@ def compile_SIF(problem):
     subprocess.call([ccompiler,"-w","-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
 
     # Compile source files.
-    exit_code = subprocess.call([fcompiler, "-c"] +  [src + ".f" for src in srcs])
+    exit_code = subprocess.call([fcompiler, "-c", "-fPIC"] +  [src + ".f" for src in srcs])
     # Link library.
     cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"]+ [src + ".o" for src in srcs]
     link_code = subprocess.call(cmd)
 
     # Link all problem library to create the .so
     if platform == "linux" or platform == "linux2": 
-        cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+lib for lib in library_dirs[0]] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem +".so"]
+        cmd = [ccompiler] + sh_flags  + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+lib for lib in library_dirs[0]] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem +".so"]
     elif platform == "darwin":
         cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"]+ ["-o"] + [problem +".so"]
     subprocess.call(cmd)

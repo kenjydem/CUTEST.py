@@ -259,7 +259,7 @@ cdef class Cutest :
         x = np.empty((nvar,), dtype = np.double)
         bl = np.empty((nvar,), dtype = np.double)
         bu = np.empty((nvar,), dtype = np.double)
-        v = np.empty((nvar,), dtype = np.double)
+        v = np.empty((ncon,), dtype = np.double)
         cl = np.empty((ncon,), dtype = np.double)
         cu = np.empty((ncon,), dtype = np.double)
         
@@ -440,7 +440,7 @@ cdef class Cutest :
     ### jac
     def cutest_ccfg(self, int nvar, int ncon, double[:] x) :
         cdef double[:] j = np.zeros((ncon*nvar,),dtype=np.double)
-        cdef double[:] c = np.zeros((nvar,),dtype=np.double)
+        cdef double[:] c = np.zeros((ncon,),dtype=np.double)
         CUTEST_ccfg(&self.status, &nvar, &ncon, &x[0], &c[0], &self.somethingFalse,
                           &ncon, &nvar, &j[0], &self.somethingTrue);
         self.cutest_error()
