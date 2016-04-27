@@ -24,7 +24,8 @@ class CUTEstModel(NLPModel) :
     def __init__(self, name):
         if name[-4:] == ".SIF":
             name = name[:-4]
-            
+        
+        sys.path[0:0] = ['.']  # prefix current directory to list
         directory = compile_SIF(name)
         cur_dir = os.getcwd()
         os.chdir(directory)
