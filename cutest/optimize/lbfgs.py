@@ -1,6 +1,6 @@
 import numpy as np
 from pykrylov.linop.lbfgs import InverseLBFGSOperator as InvLBFGS
-from nlp.ls.pyswolfe import StrongWolfeLineSearch
+from nlp.ls.pymswolfe import StrongWolfeLineSearch
 
 class LBFGS(object):
     """
@@ -8,19 +8,17 @@ class LBFGS(object):
     optimization problems by means of the limited-memory BFGS method.
     """
 
-    def __init__(self, model, x0 = None, itermax = 1000,etol = 1.0e-6,npair=5):
+    def __init__(self, model, **kwargs):
         
         self.model = model
         if self.model.m > 0 :
             raise TypeError('This method only works on unconstrained problems')
-        if x0 is None:
-            x0 = np.copy(model.x0)
         
-        self.x = x0
+        self.x = kwargs.get("x0", np.copy(model.x0))
         self.f = self.model.obj(self.x)
         self.g = self.model.grad(self.x)
         self.gNorm = np.linalg.norm(self.g)
-        self.npair = npair
+        self.npair = kwargs.get("npair", 5)
         self.lbfgs = InvLBFGS(self.model.n, self.npair)
 
         self.d = self.lbfgs.lbfgs_matvec(-self.g)
@@ -28,18 +26,19 @@ class LBFGS(object):
             
             
         self.k = 0
-        self.etol = etol
-        self.itermax = itermax
+        self.etol = kwargs.get("etol", 1.0e-5)
+        self.itermax = kwargs.get("itermax", 10000)
 
     def solve(self):
 
         while self.gNorm > self.etol and self.k < self.itermax:
                 
             SWLS = StrongWolfeLineSearch(self.f,
+                                         self.x,
                                          self.g,
                                          self.d,
-                                         lambda t: self.model.obj(self.x+t*self.d),
-                                         lambda t: self.model.grad(self.x+t*self.d),
+                                         lambda t: self.model.obj(t),
+                                         lambda t: self.model.grad(t),
                                          gtol= 0.1,
                                          ftol = 1.0e-4)
             SWLS.search()

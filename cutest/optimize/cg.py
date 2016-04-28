@@ -1,5 +1,5 @@
 import numpy as np
-from nlp.ls.pyswolfe import StrongWolfeLineSearch
+from nlp.ls.pymswolfe import StrongWolfeLineSearch
 
 class CG(object):
     """
@@ -7,7 +7,7 @@ class CG(object):
     optimization problems by conjugate gradient with different search 
     lines methods
     """
-    def __init__(self, model, x0=None, itermax=1000, etol=1.0e-5, strategy='HZ'):
+    def __init__(self, model):
         """
         Conjuguate gradient for non linear unconstraint problem 
         """
@@ -16,21 +16,17 @@ class CG(object):
         if self.model.m > 0 :
             raise TypeError('This method only works on unconstrained problems')
         
-        if x0 is None:
-            x0 = np.copy(model.x0)
-        
-        self.x = x0
+        self.x = kwargs.get("x0", np.copy(model.x0))
         self.f = self.model.obj(self.x)
         self.g = self.model.grad(self.x)
         self.gNorm = np.linalg.norm(self.g)
-        self.strategy = strategy 
+        self.strategy = kwargs.get("strategy", 'HZ') 
         self.p = -self.g.copy()
         self.cos0 =  np.dot(self.g,self.p)/(self.gNorm*np.linalg.norm(self.p))                              
 
         self.k = 0
-        self.etol = etol
-        self.itermax = itermax
-   
+        self.etol = kwargs.get("etol", 1.0e-5)
+        self.itermax = kwargs.get("itermax", 10000)
 
     def solve(self, strategy= None):
 
@@ -42,10 +38,11 @@ class CG(object):
             # Search step with Strong Wolfe
             
             SWLS = StrongWolfeLineSearch(self.f,
+                                         self.x,
                                          self.g,
                                          self.p,
-                                         lambda t: self.model.obj(self.x+t*self.p),
-                                         lambda t: self.model.grad(self.x+t*self.p),
+                                         lambda t: self.model.obj(t),
+                                         lambda t: self.model.grad(t),
                                          gtol= 0.1,
                                          ftol = 1.0e-4)
             SWLS.search()
