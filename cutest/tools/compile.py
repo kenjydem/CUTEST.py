@@ -60,7 +60,8 @@ def compile_SIF(problem, sifParams):
     if sifParams is None:
         subprocess.call(['sifdecoder', problem])
     else:
-        subprocess.call(['sifdecoder', '-param', sifParams, problem])
+        cmd = ['sifdecoder']+ [param for param in sifParams]+ [problem]
+        subprocess.call(cmd)
     
     libname = "lib%s.%s" % (problem, soname)
     #Check if decode problem is succed
