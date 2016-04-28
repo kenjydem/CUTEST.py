@@ -36,8 +36,8 @@ def compile_SIF(problem):
     default_library_dir = cutest_config.get('DEFAULT', 'library_dirs').split(os.pathsep)
     default_include_dir = cutest_config.get('DEFAULT', 'include_dirs').split(os.pathsep)
     
-    source1a = [os.path.join(data_dir, "ccutest.pyx")]
-    source2a = [os.path.join(data_dir, "ccutest.pxd")]
+    source1a = [os.path.join(data_dir, "cutest.pyx")]
+    source2a = [os.path.join(data_dir, "cutest.pxd")]
     library_dirs = default_library_dir, 
     libraries = ['cutest']
 

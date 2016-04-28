@@ -1,3 +1,5 @@
+"""The limited-memory BFGS linesearch method for unconstrained optimization."""
+
 import numpy as np
 import logging
 from nlp.ls.linesearch import ArmijoLineSearch
@@ -12,7 +14,16 @@ class Newton(object):
     """
     
     def __init__(self, model, **kwargs ):
+        """Instantiate a Newton solver with Armijo linesearch
+
+        :parameters:
+            :model: a CUTEstModel object
         
+        :keywords:
+            :x: Initial point for the research (defaut: model.x0)
+            :etol: relative stopping tolerance (default: 1.0e-5)
+            :itermax: maximum number of iterations (defaut: 10000) 
+        """
         self.model = model
         if self.model.m > 0 :
             raise TypeError('This method only works on unconstrained problems')
@@ -32,10 +43,13 @@ class Newton(object):
         self.itermax = kwargs.get("itermax", 10000)
     
     def solve(self):
+        """ Solve model with the Newton method """
+
         print"---------------------------------------"
         print "iter   f       ‖∇f‖    step    cosθ"
         print"---------------------------------------"
         print "%2d  %9.2e  %7.1e %6.4f %9.6f " % (self.k, self.f, self.gNorm, 0 ,self.cos0)
+        
         while self.gNorm > self.etol and self.k < self.itermax:
             line_model = C1LineModel(self.model,self.x,self.dk)
             step0 = max(1.0e-3, 1.0 / self.gNorm) if self.k == 0 else 1.0

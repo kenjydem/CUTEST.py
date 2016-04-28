@@ -268,7 +268,9 @@ function), or of the objective if problem is unconstrained, in sparse format
         return self.lib.cutest_cjprod(self.n, self.m, x, z, 1)
 
     def __del__(self):
-        """Delete problem"""
+        """
+        Delete problem
+        """
         del(sys.modules[self.name])
         cmd = ['rm']+['-rf']+[self.directory]
         subprocess.call(cmd)

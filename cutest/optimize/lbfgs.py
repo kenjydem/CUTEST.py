@@ -9,7 +9,17 @@ class LBFGS(object):
     """
 
     def __init__(self, model, **kwargs):
-        
+        """Instantiate a L-BFGS solver for CUTEstModel
+          
+        :parameters:
+            :model: a CUTEstModel object
+                    
+        :keywords:
+            :x: Initial point for the research (default: model.x0)
+            :etol: relative stopping tolerance (default: 1.0e-5)
+            :npair: pair's number for memory (default: 5) 
+            :itermax: maximum number of iterations (default: 10000)
+        """
         self.model = model
         if self.model.m > 0 :
             raise TypeError('This method only works on unconstrained problems')
@@ -30,7 +40,7 @@ class LBFGS(object):
         self.itermax = kwargs.get("itermax", 10000)
 
     def solve(self):
-
+        """Solve model with the L-BFGS method."""
         while self.gNorm > self.etol and self.k < self.itermax:
                 
             SWLS = StrongWolfeLineSearch(self.f,

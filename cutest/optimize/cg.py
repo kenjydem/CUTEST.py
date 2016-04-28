@@ -9,7 +9,15 @@ class CG(object):
     """
     def __init__(self, model):
         """
-        Conjuguate gradient for non linear unconstraint problem 
+        Conjuguate gradient for CUTEst problem unconstrained 
+        :parameters:
+            :model: a CUTEstModel object
+        :keywords:
+            :strategy: search lines methods (default: HZ, available:FR,PR,PR-FR,PR+,HZ)
+            :x: Initial point for the research (default: model.x0)
+            :etol: relative stopping tolerance (default: 1.0e-5)
+            :itermax: maximum number of iterations (default: 10000)
+        
         """
 
         self.model = model
@@ -29,7 +37,7 @@ class CG(object):
         self.itermax = kwargs.get("itermax", 10000)
 
     def solve(self, strategy= None):
-
+        """Solve model with the CG method."""
         if strategy is not None:
             self.strategy = strategy
 

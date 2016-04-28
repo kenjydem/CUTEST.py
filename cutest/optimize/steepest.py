@@ -12,7 +12,16 @@ class Steepest(object):
     """
     
     def __init__(self, model, **kwargs):
-        
+        """Instantiate a Steepest solver with Armijo linesearch
+          
+        :parameters:
+            :model: a CUTEstModel object
+                    
+        :keywords:
+            :x: Initial point for the research (default: model.x0)
+            :etol: relative stopping tolerance (default: 1.0e-5)
+            :itermax: maximum number of iterations (default: 10000)
+        """
         self.model = model
         if self.model.m > 0 :
             raise TypeError('This method only works on unconstrained problems')
@@ -33,7 +42,7 @@ class Steepest(object):
     
     
     def solve(self):
-        
+        """ Solve model with the Steepest method """
         print"---------------------------------------"
         print "iter   f       ‖∇f‖    step    cosθ"
         print"---------------------------------------"
@@ -64,4 +73,5 @@ class Steepest(object):
                 print "iter   f       ‖∇f‖    step    cosθ"
                 print"---------------------------------------"
             print "%2d  %9.2e  %7.1e %6.4f %9.6f " % (self.k, self.f, self.gNorm, ls.step,self.cos0)
+        
         return self.x
