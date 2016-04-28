@@ -21,12 +21,13 @@ class CUTEstModel(NLPModel) :
     - name : name of the problem 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         if name[-4:] == ".SIF":
             name = name[:-4]
         
         sys.path[0:0] = ['.']  # prefix current directory to list
-        directory = compile_SIF(name)
+        sifParams = kwargs.get("sifParams",None) 
+        directory = compile_SIF(name,sifParams)
         cur_dir = os.getcwd()
         os.chdir(directory)
         cc = importlib.import_module(name)

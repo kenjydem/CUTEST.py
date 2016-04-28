@@ -22,7 +22,7 @@ elif platform == "darwin":
 elif platform == "win32":
     raise(ValueError, "Windows platforms are currently not supported")
 
-def compile_SIF(problem):
+def compile_SIF(problem, sifParams):
     """Decode SIF problem and compile shared library."""
 
     cutest_config = ConfigParser.SafeConfigParser()
@@ -57,7 +57,11 @@ def compile_SIF(problem):
     subprocess.call(['cython', '-I', library_dirs[0][0], problem+".pyx"])
     
     # Problem decode
-    subprocess.call(['sifdecoder', problem])
+    if sifParams is None:
+        subprocess.call(['sifdecoder', problem])
+    else:
+        subprocess.call(['sifdecoder', '-param', sifParams, problem])
+    
     libname = "lib%s.%s" % (problem, soname)
     #Check if decode problem is succed
     if os.path.isfile("OUTSDIF.d") == False:
