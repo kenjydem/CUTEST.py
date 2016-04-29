@@ -1,12 +1,12 @@
 # CUTEST.py: Python's CUTEst Interface
 
-`CUTEST.py` is a Python package for modeling and solving optimization problems from CUTEst collection.
+`CUTEST.py` is a Python interface package for modeling and solving optimization problems from CUTEst collection.
 
 ## Dependencies
 
-- ['CUTEst'](https://github.com/optimizers/cutest-mirror)
+- [`CUTEst`](https://github.com/optimizers/cutest-mirror)
 - [`Numpy`](http://www.numpy.org)
-- ['NLP.py'] (coming soon)
+- [`NLP.py`]
 
 ## Optional dependencies
 
@@ -25,5 +25,18 @@
 ```bash
     python setup.py install
     python setup.py test
-    ```
+```
 4. Have fun
+
+## Example
+
+```bash
+>>> from cutest.cutestmodel import CUTEstModel
+
+>>> model = CUTEstModel('ROSENBR')
+>>> f = model.obj(model.x0)
+>>> g = model.grad(model.x0)
+>>> H = model.hess(model.x0)
+```
+
+
