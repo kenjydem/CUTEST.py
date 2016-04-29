@@ -26,7 +26,6 @@
     python setup.py install
     python setup.py test
 ```
-4. Have fun
 
 ## Example
 
@@ -34,6 +33,7 @@
 >>> from cutest.cutestmodel import CUTEstModel
 
 >>> model = CUTEstModel('ROSENBR')
+
 >>> f = model.obj(model.x0)
 >>> g = model.grad(model.x0)
 >>> H = model.hess(model.x0)
