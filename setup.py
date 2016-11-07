@@ -1,6 +1,7 @@
 try:
     from setuptools import setup
 except:
+    print "Installation with distutils"
     from distutils.core import setup
 
 setup(
