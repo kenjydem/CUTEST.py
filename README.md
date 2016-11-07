@@ -35,4 +35,13 @@
 >>> H = model.hess(model.x0)
 ```
 
+## Option
 
+ With the sifedecoder, you can check if the problem exist in different size.
+For example, LUBRIFC problem exist in 3 different size. To import the size you want, you just have to give sif parameter as argument when you import your problem in Python. For example:
+
+```bash
+>>> from cutest.model.cutestmodel import CUTEstModel
+
+>>> model = CUTEstModel('LUBRIFC', sifParams=['-param', 'NN=10']) 
+```
