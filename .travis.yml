@@ -8,7 +8,12 @@ before_install:
   - brew update
   - brew tap optimizers/cutest
   - brew install cutest
-  - brew brew install mastsif
+  - brew install mastsif
+  - export ARCHDEFS="$(brew --prefix)/Cellar/archdefs/0.1/libexec"
+  - export CUTEST="$(brew --prefix)/Cellar/cutest/0.2/libexec"
+  - export SIFEDECODE="$(brew --prefix)/Cellar/sifdecode/0.3/libexec"
+  - export MASTSIF="$(brew --prefix)/opt/mastsif/share/mastsif"
+  - export MYARCH=mac64.osx.gfo
   - pip install -q numpy
 
 install:
