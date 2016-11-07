@@ -1,4 +1,4 @@
-from cutest.model import cutestmodel
+from cutest.model.cutestmodel import CUTEstModel
 import numpy as np
 import scipy.sparse as sparse
 
@@ -16,7 +16,7 @@ if name[-4:] == ".SIF":
         
 print 'Reading problem ' + name + '...'
 try:
-    prob = cutestmodel.CUTEstModel(name)
+    prob = CUTEstModel(name)
     x = prob.x0
     
 

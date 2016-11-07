@@ -9,7 +9,7 @@ setup(
     description='Python interface for CUTEst library',
     author=['Kenjy Demeester','Farooq Sanni'],
     package_dir={"cutest": "cutest"},
-    package_data={'cutest': ['model/*.py','model/src/*.cfg','model/src/*.pyx','model/src/*.pxd','optimize/*py','tools/*.py','tools/*.cfg','test/*py']},
+    package_data={'cutest': ['model/*.py','model/src/*.cfg','model/src/*.pyx','model/src/*.pxd','tools/*.py','tools/*.cfg','test/*py']},
     packages=["cutest"],
     test_suite = "cutest.test.test_cutest"
     )

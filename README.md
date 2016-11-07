@@ -5,12 +5,8 @@
 ## Dependencies
 
 - [`CUTEst`](https://github.com/optimizers/cutest-mirror)
+- [`NLP.py`](https://github.com/PythonOptimizers/NLP.py)
 - [`Numpy`](http://www.numpy.org)
-- [`NLP.py`]
-
-## Optional dependencies
-
-- [`PyKrylov`](https://github.com/PythonOptimizers/pykrylov)
 
 ## Installation
 
@@ -30,7 +26,7 @@
 ## Example
 
 ```bash
->>> from cutest.cutestmodel import CUTEstModel
+>>> from cutest.model.cutestmodel import CUTEstModel
 
 >>> model = CUTEstModel('ROSENBR')
 

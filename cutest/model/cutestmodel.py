@@ -1,11 +1,10 @@
-#*-coding:Utf-8 -*
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
 import scipy.sparse as sparse
 from cutest.tools.compile import compile_SIF
 
 class CUTEstModel(NLPModel) :
-    """Classe définissant un problème :
+    """A general class from NLP.py :
     - n : number of variables
     - m : number of constraints
     - nnzj : number of nonzeros constraint in Jacobian
@@ -32,14 +31,18 @@ class CUTEstModel(NLPModel) :
         os.chdir(directory)
         cc = importlib.import_module(name)
         self.lib = cc.Cutest(name)
+        
         prob = self.lib.loadProb("OUTSDIF.d")
-        kwargs = {'x0':prob['x'], 'pi0':prob['v'], 'Lvar':prob['bl'], 'Uvar':prob['bu'], 'Lcon':prob['cl'], 'Ucon':prob['cu']} 
-        NLPModel.__init__(self, prob['nvar'], prob['ncon'], name, **kwargs)
+        
+        NLPModel.__init__(self, prob['nvar'], prob['ncon'], name,
+                          x0 = prob['x'], pi0 = prob['v'], 
+                          Lvar = prob['bl'], Uvar = prob['bu'],
+                          Lcon = prob['cl'], Ucon = prob['cu'])
+        
         self.nnzj = prob['nnzj']
         self.nnzh = prob['nnzh']
         self.directory = directory
         os.chdir(cur_dir)
-        #self._nlin = len(prob['lin']) In the newest NLPy, it's already compiled
         
 
     def obj(self,x, **kwargs):
@@ -196,7 +199,7 @@ class CUTEstModel(NLPModel) :
     def ishess(self, x, i) :
         """
         Evaluate the Hessian matrix of the i-th problem function (i=0 is the objective
-function), or of the objective if problem is unconstrained, in sparse format
+        function), or of the objective if problem is unconstrained, in sparse format
         """
         if self.m == 0:
              return self.shess(x,i)
