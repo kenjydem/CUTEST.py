@@ -166,8 +166,7 @@ class CUTEstModel(NLPModel) :
         else:
             h, irow, jcol = self.lib.cutest_ush(self.n, self.nnzh, x)
         
-        #on ne récupère que la partie triangulaire supérieure de h
-        # nous reconstruisons donc la matrice h       
+        # We rebuild the matrix h from the upper triangle       
         offdiag = 0
         for i in range(self.nnzh):
             if irow[i] != jcol[i]:
