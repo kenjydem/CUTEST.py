@@ -6,7 +6,9 @@ os:
 
 before_install:
   - brew update
+  - brew tap optimizers/cutest
   - brew install cutest
+  - brew brew install mastsif
   - pip install -q numpy
 
 install:
