@@ -242,7 +242,6 @@ cdef class Cutest :
 
     def loadProb(self, char* fname):
         cdef int funit, nvar, ncon, iout, io_buffer, nlin, nnln, nnzh, nnzj, const1, const3 
-        cdef double[:] x, bl, bu, v, cl, cu
         cdef long[:] lin, nln
     
         funit = 5#42 # FORTRAN unit number for OUTSDIF.d
@@ -256,25 +255,43 @@ cdef class Cutest :
         const1 = 5
         const3 = 1
       
-        x = np.empty((nvar,), dtype = np.double)
-        bl = np.empty((nvar,), dtype = np.double)
-        bu = np.empty((nvar,), dtype = np.double)
-        v = np.empty((ncon,), dtype = np.double)
-        cl = np.empty((ncon,), dtype = np.double)
-        cu = np.empty((ncon,), dtype = np.double)
-        
+        cdef np.ndarray x = np.empty((nvar,), dtype = np.double)
+        cdef np.ndarray bl = np.empty((nvar,), dtype = np.double)
+        cdef np.ndarray bu = np.empty((nvar,), dtype = np.double)
+
+        cdef np.ndarray v = np.empty((ncon,), dtype = np.double)
+        cdef np.ndarray cl = np.empty((ncon,), dtype = np.double)
+        cdef np.ndarray cu = np.empty((ncon,), dtype = np.double)
+
         cdef np.ndarray[logical, cast=True] equatn = np.arange(ncon, dtype='>i1')
         cdef np.ndarray[logical, cast=True] linear = np.arange(ncon, dtype='>i1')
         
         if ncon > 0:
             CUTEST_csetup(&self.status, &funit, &const1, &self.const2, &nvar,
-                          &ncon, &x[0], &bl[0], &bu[0],
-                          &v[0], &cl[0], &cu[0], &equatn[0], &linear[0], &const3, &const3, &const3)
+                          &ncon, <double *>x.data, <double *>bl.data, <double *>bu.data,
+                          <double *>v.data, <double *>cl.data, <double *>cu.data, 
+                          &equatn[0], &linear[0], &const3, &const3, &const3)
         else:
-            CUTEST_usetup( &self.status, &funit, &const1, &self.const2, &nvar, &x[0], &bl[0], &bu[0])
+            CUTEST_usetup( &self.status, &funit, &const1, &self.const2, &nvar, <double *>x.data, <double *>bl.data, <double *>bu.data)
         
         self.cutest_error()
         
+        # Modify infinity value for np.inf in Uvar
+        ind = np.where(bu==1e+20)[0]
+        bu[ind] = np.inf
+
+        # Modify infinity value for -np.inf in Lvar
+        ind = np.where(bl==-1e+20)[0]        
+        bl[ind] = -np.inf
+ 
+        # Modify infinity value for np.inf in Ucon
+        ind = np.where(cu==1e+20)[0]
+        cu[ind] = np.inf
+
+        # Modify infinity value for -np.inf in Lcon
+        ind = np.where(cl==-1e+20)[0]
+        cl[ind] = -np.inf
+
         lin = np.where(linear==1)[0]
         nln = np.where(linear==0)[0]
         nlin = np.sum(linear)
@@ -315,17 +332,14 @@ cdef class Cutest :
         Compute objective and constraints functions
         """
         cdef double f
-        cdef double[:] c
-        c = np.zeros((ncon,), dtype=np.double)
-        CUTEST_cfn(&self.status, &nvar, &ncon, &x[0], &f, &c[0])
+        cdef np.ndarray c = np.zeros((ncon,), dtype=np.double)
+        CUTEST_cfn(&self.status, &nvar, &ncon, &x[0], &f, <double *>c.data)
         self.cutest_error()
         if cons == 0 :
             return f
         else : 
-            if ncon == 1 :
+            if cons == 1 :
                 return c
-            else :
-                return np.asarray(c)
 
     ### obj
     def cutest_ufn(self, int nvar, int ncon, double[:] x):
@@ -341,18 +355,19 @@ cdef class Cutest :
     def cutest_ugr(self, int nvar, int ncon, double[:] x):
         """ Compute objective gradient """
     
-        cdef double[:] g = np.zeros((nvar,),dtype=np.double)
-        CUTEST_ugr(&self.status, &nvar, &x[0], &g[0])
+        cdef np.ndarray g = np.zeros((nvar,),dtype=np.double)
+
+        CUTEST_ugr(&self.status, &nvar, &x[0], <double *>g.data)
         self.cutest_error()
-        return np.asarray(g)
+        return g
 
     ### grad
     def cutest_cofg(self, int nvar, int ncon, double[:] x):
         """ Compute objective gradient """
 
-        cdef double[:] g = np.zeros((nvar,),dtype=np.double)
+        cdef np.ndarray g = np.zeros((nvar,),dtype=np.double)
         cdef double f
-        CUTEST_cofg( &self.status, &nvar, &x[0], &f, &g[0], &self.somethingTrue)
+        CUTEST_cofg( &self.status, &nvar, &x[0], &f, <double *>g.data, &self.somethingTrue)
         self.cutest_error()  	 
         return np.asarray(g)
 
@@ -360,17 +375,16 @@ cdef class Cutest :
     def cutest_ccifg(self, int nvar, int ncon, int i, double[:] x, logical grad):
         """ Evaluate i-th constraint at x """
         cdef double ci
-        cdef double[:] gci
+        cdef np.ndarray gci = np.zeros((nvar,),dtype=np.double)
         if grad == 0 :
             CUTEST_ccifg(&self.status, &nvar, &i, &x[0], &ci, NULL, &grad)
         else : 
-            gci = np.zeros((nvar,),dtype=np.double)
-            CUTEST_ccifg(&self.status, &nvar, &i, &x[0], &ci, &gci[0], &grad)	 
+            CUTEST_ccifg(&self.status, &nvar, &i, &x[0], &ci, <double *>gci.data, &grad)	 
         self.cutest_error()
         if grad == 0 : 
             return ci
         else :
-            return np.asarray(gci)
+            return gci
 
     ### ihess & hess
     def cutest_udh(self, int nvar, double[:] x):
