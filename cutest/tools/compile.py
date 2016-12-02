@@ -31,7 +31,7 @@ def compile_SIF(problem_name, sifParams):
     data_dir = os.path.join(os.path.dirname(cutest.__file__),'model','src')
     config_dir = os.path.join(os.path.dirname(cutest.__file__),'tools')
 
-    cutest_config.read(os.path.join(config_dir, 'site.template.cfg'))
+    cutest_config.read(os.path.join(config_dir, 'site.cfg'))
     
     default_library_dir = cutest_config.get('DEFAULT', 'library_dirs').split(os.pathsep)
     default_include_dir = cutest_config.get('DEFAULT', 'include_dirs').split(os.pathsep)
@@ -40,6 +40,7 @@ def compile_SIF(problem_name, sifParams):
     source2a = [os.path.join(data_dir, "cutest.pxd")]
     library_dirs = default_library_dir, 
     libraries = ['cutest']
+    include_dirs = default_include_dir,
 
     cur_path = os.getcwd()
 
@@ -86,17 +87,17 @@ def compile_SIF(problem_name, sifParams):
     dat = ["OUTSDIF.d", "AUTOMAT.d"]
 
     # Create problem .o from .c
-    subprocess.call([ccompiler,"-w","-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem_name_cython+".c", "-o", problem_name_cython+".o"])
+    subprocess.call([ccompiler,"-w","-g","-O3","-fPIC","-I"+include_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem_name_cython+".c", "-o", problem_name_cython+".o"])
 
     # Compile source files.
     exit_code = subprocess.call([fcompiler, "-c", "-fPIC"] +  [src + ".f" for src in srcs])
     # Link library.
-    cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest_double"]+ [src + ".o" for src in srcs]
+    cmd = [linker] + sh_flags + ["-o"] + [libname] + ["-L%s" % cutest_libdir_double, "-lcutest"]+ [src + ".o" for src in srcs]
     link_code = subprocess.call(cmd)
 
     # Link all problem library to create the .so
     if platform == "linux" or platform == "linux2": 
-        cmd = [ccompiler] + sh_flags  + [problem_name_cython+".o"] + [src + ".o" for src in srcs] + ["-L"+lib for lib in library_dirs[0]] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem_name_cython +".so"]
+        cmd = [ccompiler] + sh_flags  + [problem_name_cython+".o"] + [src + ".o" for src in srcs] + ["-L%s" % cutest_libdir_double] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem_name_cython +".so"]
     elif platform == "darwin":
         cmd = [ccompiler] + sh_flags + [problem_name_cython+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"]+ ["-o"] + [problem_name_cython +".so"]
     subprocess.call(cmd)
