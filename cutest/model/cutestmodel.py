@@ -54,7 +54,7 @@ class CUTEstModel(NLPModel) :
             f = self.lib.cutest_cfn(self.n, self.m, x, 0)
             return f    
         
-        f = self.lib.cutest_ufn(self.n, self.m, x)
+        f = self.lib.cutest_ufn(self.n, x)
         return f
     
     def grad(self, x):
@@ -65,7 +65,6 @@ class CUTEstModel(NLPModel) :
         if self.m > 0:
             g = self.lib.cutest_cofg(self.n, self.m, x)
         else:
-            print x
             g = self.lib.cutest_ugr(self.n, x)
         return g
 
@@ -89,8 +88,9 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m == 0 :
-            raise TypeError('the problem ' + self.name + ' does not have constraints')
-        return self.lib.cutest_cfn(self.n, self.m, x, 1)
+            return np.array([], dtype=np.double)
+        else:
+            return self.lib.cutest_cfn(self.n, self.m, x, 1)
 
     def icons(self, i, x, **kwargs):
         """
@@ -98,7 +98,7 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m == 0 :
-            raise TypeError('the problem ' + self.name + ' does not have constraints')
+            return np.array([], dtype=np.double)
         if i==0:
             raise ValueError('i must be between 1 and '+str(self.m))
         if i > self.m :
@@ -113,7 +113,7 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m == 0 :
-            raise TypeError('the problem ' + self.name + ' does not have constraints')
+            return np.array((0,self.n), dtype=np.double)
         if i==0:
             raise ValueError('i must be between 1 and '+str(self.m))
         if i > self.m :
@@ -125,7 +125,7 @@ class CUTEstModel(NLPModel) :
     # Gradient is returned as a sparse vector
     def sigrad(self, i, x, **kwargs):
         if self.m == 0 :
-            raise TypeError('the problem ' + self.name + ' does not have constraints')
+            return sparse.coo_matrix((0,self.n),dtype=np.double)
         if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         if i==0:
@@ -138,7 +138,7 @@ class CUTEstModel(NLPModel) :
     def jac(self, x, **kwargs):
         """  Evaluate constraints Jacobian at x """
         if self.m == 0 :
-            raise TypeError('the problem ' + self.name + ' does not have constraints')
+            return np.array((0,self.n), dtype=np.double)
         return self.lib.cutest_ccfg(self.n, self.m, x)
             
     def hess(self, x, z=None, **kwargs):
@@ -257,7 +257,7 @@ class CUTEstModel(NLPModel) :
         if len(dim) != 1 or dim[0] != self.n :
             raise ValueError('the vector z dimension should be ['+str(self.n) +' 1]')
         if self.m == 0 :
-            raise ValueError('this function is only available for constrained problems')
+            return np.array([], dtype=np.double)
         return self.lib.cutest_cjprod(self.n, self.m, x, z, 0)
     
     def jtprod(self, x, z) :
@@ -268,7 +268,7 @@ class CUTEstModel(NLPModel) :
         if len(dim) != 1 or dim[0] != self.m :
             raise ValueError('the vector z dimension should be ['+str(self.m)+' 1]')
         if self.m == 0 :
-            raise ValueError('this function is only available for constrained problems')
+            return np.zeros(self.n, dtype=np.double)
         return self.lib.cutest_cjprod(self.n, self.m, x, z, 1)
 
     def __del__(self):
