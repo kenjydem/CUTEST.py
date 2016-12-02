@@ -342,7 +342,7 @@ cdef class Cutest :
                 return c
 
     ### obj
-    def cutest_ufn(self, int nvar, int ncon, double[:] x):
+    def cutest_ufn(self, int nvar, double[:] x):
         """
         Compute objective function for problem without constraint
         """
@@ -352,11 +352,10 @@ cdef class Cutest :
         return f
 
     ### grad
-    def cutest_ugr(self, int nvar, int ncon, double[:] x):
+    def cutest_ugr(self, int nvar, double[:] x):
         """ Compute objective gradient """
     
         cdef np.ndarray g = np.zeros((nvar,),dtype=np.double)
-
         CUTEST_ugr(&self.status, &nvar, &x[0], <double *>g.data)
         self.cutest_error()
         return g
@@ -369,7 +368,7 @@ cdef class Cutest :
         cdef double f
         CUTEST_cofg( &self.status, &nvar, &x[0], &f, <double *>g.data, &self.somethingTrue)
         self.cutest_error()  	 
-        return np.asarray(g)
+        return g
 
     ### igrad & icons
     def cutest_ccifg(self, int nvar, int ncon, int i, double[:] x, logical grad):

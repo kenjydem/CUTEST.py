@@ -57,7 +57,7 @@ class CUTEstModel(NLPModel) :
         f = self.lib.cutest_ufn(self.n, self.m, x)
         return f
     
-    def grad(self, x, **kwargs):
+    def grad(self, x):
         """
         Compute objective gradient at x:
         - x: Evaluated point (numpy array)
@@ -65,7 +65,8 @@ class CUTEstModel(NLPModel) :
         if self.m > 0:
             g = self.lib.cutest_cofg(self.n, self.m, x)
         else:
-            g = self.lib.cutest_ugr(self.n, self.m, x)
+            print x
+            g = self.lib.cutest_ugr(self.n, x)
         return g
 
     def sgrad(self, x) : 
