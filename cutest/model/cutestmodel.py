@@ -146,11 +146,14 @@ class CUTEstModel(NLPModel) :
          Evaluate Lagrangian Hessian at (x,z) if the problem is
          constrained and the Hessian of the objective function if the problem is unconstrained.
         - x: Evaluated point (numpy array)
+        - z: Lagrange multipliers
+
+        NOTE: CUTEst Lagrangian is L(x,z) = f(x) + z'c(x), so we pass -z to compensate
         """
         if self.m > 0 :
             if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
-            res = self.lib.cutest_cdh(self.n, self.m, x, z)
+            res = self.lib.cutest_cdh(self.n, self.m, x, -z)
         else :
             res = self.lib.cutest_udh(self.n, x)
         return res
@@ -159,11 +162,13 @@ class CUTEstModel(NLPModel) :
         """
         Evaluate the Hessian matrix of the Lagrangian, or of the objective if the problem
         is unconstrained, in sparse format
+
+        NOTE: CUTEst Lagrangian is L(x,z) = f(x) + z'c(x), so we pass -z to compensate
         """
         if self.m > 0:
             if z is None:
                 raise ValueError('the Lagrange multipliers need to be specified')
-            h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, z)
+            h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, -z)
         else:
             h, irow, jcol = self.lib.cutest_ush(self.n, self.nnzh, x)
         
@@ -226,13 +231,15 @@ class CUTEstModel(NLPModel) :
         """ 
         Evaluate matrix-vector product between the Hessian of the Lagrangian and a vector
         - x: Evaluated point (numpy array)
-        - z: The Lagrangian (numpy array)
+        - z: The Lagrange multipliers (numpy array)
         - p: A vector (numpy array)
+
+        NOTE: CUTEst Lagrangian is L(x,z) = f(x) + z'c(x), so we pass -z to compensate
         """
         if self.m > 0 :
             if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
-            res = self.lib.cutest_chprod(self.n, self.m, x, z, p)
+            res = self.lib.cutest_chprod(self.n, self.m, x, -z, p)
         else :
             res = self.lib.cutest_hprod(self.n, x, p)
         return res
