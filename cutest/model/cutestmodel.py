@@ -256,27 +256,27 @@ class CUTEstModel(NLPModel) :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         return np.dot(self.lib.cutest_cidh(self.n, x, i), p)
 
-    def jprod(self, x, z) :
+    def jprod(self, x, p) :
         """
         Evaluate the matrix-vector product between the Jacobian and a vector
         """
-        dim = z.shape
+        dim = p.shape
         if len(dim) != 1 or dim[0] != self.n :
-            raise ValueError('the vector z dimension should be ['+str(self.n) +' 1]')
+            raise ValueError('the vector p dimension should be ['+str(self.n) +' 1]')
         if self.m == 0 :
             return np.array([], dtype=np.double)
-        return self.lib.cutest_cjprod(self.n, self.m, x, z, 0)
+        return self.lib.cutest_cjprod(self.n, self.m, x, p, 0)
     
-    def jtprod(self, x, z) :
+    def jtprod(self, x, p) :
         """
         Evaluate the matrix-vector product between the transpose Jacobian and a vector
         """
-        dim = z.shape
+        dim = p.shape
         if len(dim) != 1 or dim[0] != self.m :
-            raise ValueError('the vector z dimension should be ['+str(self.m)+' 1]')
+            raise ValueError('the vector p dimension should be ['+str(self.m)+' 1]')
         if self.m == 0 :
             return np.zeros(self.n, dtype=np.double)
-        return self.lib.cutest_cjprod(self.n, self.m, x, z, 1)
+        return self.lib.cutest_cjprod(self.n, self.m, x, p, 1)
 
     def __del__(self):
         """
