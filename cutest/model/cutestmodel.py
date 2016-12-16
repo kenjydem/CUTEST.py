@@ -55,6 +55,8 @@ class CUTEstModel(NLPModel) :
             return f    
         
         f = self.lib.cutest_ufn(self.n, x)
+        if self.scale_obj:
+            f *= self.scale_obj
         return f
     
     def grad(self, x):
@@ -66,6 +68,8 @@ class CUTEstModel(NLPModel) :
             g = self.lib.cutest_cofg(self.n, self.m, x)
         else:
             g = self.lib.cutest_ugr(self.n, x)
+        if self.scale_obj:
+            g *= self.scale_obj
         return g
 
     def sgrad(self, x) : 
@@ -80,7 +84,10 @@ class CUTEstModel(NLPModel) :
 
         g, ir = self.lib.cutest_cofsg(self.n, x)
         ir[ir.nonzero()] = ir[ir.nonzero()] - 1
-        return sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
+        sg = sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
+        if self.scale_obj:
+            sg *= self.scale_obj
+        return sg
 
     def cons(self, x, **kwargs):
         """
@@ -90,7 +97,10 @@ class CUTEstModel(NLPModel) :
         if self.m == 0 :
             return np.array([], dtype=np.double)
         else:
-            return self.lib.cutest_cfn(self.n, self.m, x, 1)
+            c = self.lib.cutest_cfn(self.n, self.m, x, 1)
+            if isinstance(self.scale_con, np.ndarray):
+                c *= self.scale_con
+            return c
 
     def icons(self, i, x, **kwargs):
         """
@@ -103,9 +113,11 @@ class CUTEstModel(NLPModel) :
             raise ValueError('i must be between 1 and '+str(self.m))
         if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        return self.lib.cutest_ccifg(self.n, self.m, i, x, 0)
+        ci = self.lib.cutest_ccifg(self.n, self.m, i, x, 0)
+        if isinstance(self.scale_con, np.ndarray):
+            ci *= self.scale_con[i]
+        return ci
             
-        
     def igrad(self, i, x, **kwargs):
         """
          Evalutate i-th constraint gradient at x
@@ -118,8 +130,10 @@ class CUTEstModel(NLPModel) :
             raise ValueError('i must be between 1 and '+str(self.m))
         if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        return self.lib.cutest_ccifg(self.n, self.m, i, x, 1)
-
+        gi = self.lib.cutest_ccifg(self.n, self.m, i, x, 1)
+        if isinstance(self.scale_con, np.ndarray):
+            gi *= self.scale_con[i]
+        return gi
 
     # Evaluate i-th constraint gradient at x
     # Gradient is returned as a sparse vector
@@ -133,13 +147,19 @@ class CUTEstModel(NLPModel) :
 
         g, ir = self.lib.cutest_ccifsg(self.n, self.nnzj, i, x)
         ir[ir.nonzero()] = ir[ir.nonzero()] - 1
-        return sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
+        sci = sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
+        if isinstance(self.scale_con, np.ndarray):
+            sci *= self.scale_con[i]
+        return sci
             
     def jac(self, x, **kwargs):
         """  Evaluate constraints Jacobian at x """
         if self.m == 0 :
             return np.array((0,self.n), dtype=np.double)
-        return self.lib.cutest_ccfg(self.n, self.m, x)
+        J = self.lib.cutest_ccfg(self.n, self.m, x)
+        if isinstance(self.scale_con, np.ndarray):
+            J = (self.scale_con * J.T).T
+        return J
             
     def hess(self, x, z=None, **kwargs):
         """
@@ -153,9 +173,16 @@ class CUTEstModel(NLPModel) :
         if self.m > 0 :
             if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
+            if isinstance(self.scale_con, np.ndarray):
+                z = z.copy()
+                z *= self.scale_con
+                if self.scale_obj is not None:
+                    z /= self.scale_obj
             res = self.lib.cutest_cdh(self.n, self.m, x, -z)
         else :
             res = self.lib.cutest_udh(self.n, x)
+        if self.scale_obj:
+            res *= self.scale_obj
         return res
 
     def shess(self, x, z=None) :
@@ -168,11 +195,19 @@ class CUTEstModel(NLPModel) :
         if self.m > 0:
             if z is None:
                 raise ValueError('the Lagrange multipliers need to be specified')
+            if isinstance(self.scale_con, np.ndarray):
+                z = z.copy()
+                z *= self.scale_con
+                if self.scale_obj is not None:
+                    z /= self.scale_obj
             h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, -z)
         else:
             h, irow, jcol = self.lib.cutest_ush(self.n, self.nnzh, x)
         
-        # We rebuild the matrix h from the upper triangle       
+        if self.scale_obj:
+            h *= self.scale_obj
+
+        # We rebuild the matrix h from the upper triangle
         offdiag = 0
         for i in range(self.nnzh):
             if irow[i] != jcol[i]:
@@ -196,10 +231,16 @@ class CUTEstModel(NLPModel) :
         """
         if self.m == 0 :
             print 'Warning : the problem is unconstrained, the dense Hessian of the objective is returned'
-            return self.lib.cutest_udh(self.n, x)
+            h = self.lib.cutest_udh(self.n, x)
+            if self.scale_obj:
+                h *= self.scale_obj
+            return h
         if i > self.m :
-                raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        return self.lib.cutest_cidh(self.n, x, i)
+            raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
+        h = self.lib.cutest_cidh(self.n, x, i)
+        if isinstance(self.scale_con, np.ndarray):
+            h *= self.scale_con[i]
+        return h
         
     def ishess(self, x, i) :
         """
@@ -207,10 +248,15 @@ class CUTEstModel(NLPModel) :
         function), or of the objective if problem is unconstrained, in sparse format
         """
         if self.m == 0:
-             return self.shess(x,i)
+             return self.ihess(x,i)
         if i > self.m :
                 raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
         h, irow, jcol = self.lib.cutest_cish(self.n, self.nnzh, x, i)     
+
+        if isinstance(self.scale_con, np.ndarray):
+            h *= self.scale_con[i]
+
+        # We rebuild the matrix h from the upper triangle       
         offdiag = 0
         for i in range(self.nnzh):
             if irow[i] != jcol[i]:
@@ -240,8 +286,15 @@ class CUTEstModel(NLPModel) :
             if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
             res = self.lib.cutest_chprod(self.n, self.m, x, -z, p)
+            if isinstance(self.scale_con, np.ndarray):
+                z = z.copy()
+                z *= self.scale_con
+                if self.scale_obj is not None:
+                    z /= self.scale_obj
         else :
             res = self.lib.cutest_hprod(self.n, x, p)
+        if self.scale_obj:
+            res *= self.scale_obj
         return res
 
     
@@ -254,7 +307,10 @@ class CUTEstModel(NLPModel) :
             raise TypeError('the problem ' + self.name + ' does not have constraints')
         if i > self.m :
             raise ValueError('the problem ' + self.name + ' only has ' + str(self.m) + ' constraints')
-        return np.dot(self.lib.cutest_cidh(self.n, x, i), p)
+        res = np.dot(self.lib.cutest_cidh(self.n, x, i), p)
+        if isinstance(self.scale_con, np.ndarray):
+            res *= self.scale_con[i]
+        return res
 
     def jprod(self, x, p) :
         """
@@ -265,7 +321,10 @@ class CUTEstModel(NLPModel) :
             raise ValueError('the vector p dimension should be ['+str(self.n) +' 1]')
         if self.m == 0 :
             return np.array([], dtype=np.double)
-        return self.lib.cutest_cjprod(self.n, self.m, x, p, 0)
+        prod = self.lib.cutest_cjprod(self.n, self.m, x, p, 0)
+        if isinstance(self.scale_con, np.ndarray):
+            prod *= self.scale_con
+        return prod
     
     def jtprod(self, x, p) :
         """
@@ -276,6 +335,8 @@ class CUTEstModel(NLPModel) :
             raise ValueError('the vector p dimension should be ['+str(self.m)+' 1]')
         if self.m == 0 :
             return np.zeros(self.n, dtype=np.double)
+        if isinstance(self.scale_con, np.ndarray):
+            p *= self.scale_con
         return self.lib.cutest_cjprod(self.n, self.m, x, p, 1)
 
     def __del__(self):
