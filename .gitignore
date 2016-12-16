@@ -1,4 +1,4 @@
-# Python staff #
+# Python stuff #
 ################
 *.d
 *.pyc
@@ -44,3 +44,7 @@ dist/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Local settings #
+##################
+site.cfg
