@@ -52,9 +52,9 @@ class CUTEstModel(NLPModel) :
         """
         if self.m > 0:
             f = self.lib.cutest_cfn(self.n, self.m, x, 0)
-            return f    
-        
-        f = self.lib.cutest_ufn(self.n, x)
+        else:
+            f = self.lib.cutest_ufn(self.n, x)
+
         if self.scale_obj:
             f *= self.scale_obj
         return f
@@ -176,7 +176,7 @@ class CUTEstModel(NLPModel) :
             if isinstance(self.scale_con, np.ndarray):
                 z = z.copy()
                 z *= self.scale_con
-                if self.scale_obj is not None:
+                if self.scale_obj:
                     z /= self.scale_obj
             res = self.lib.cutest_cdh(self.n, self.m, x, -z)
         else :
@@ -198,7 +198,7 @@ class CUTEstModel(NLPModel) :
             if isinstance(self.scale_con, np.ndarray):
                 z = z.copy()
                 z *= self.scale_con
-                if self.scale_obj is not None:
+                if self.scale_obj:
                     z /= self.scale_obj
             h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, -z)
         else:
@@ -289,7 +289,7 @@ class CUTEstModel(NLPModel) :
             if isinstance(self.scale_con, np.ndarray):
                 z = z.copy()
                 z *= self.scale_con
-                if self.scale_obj is not None:
+                if self.scale_obj:
                     z /= self.scale_obj
         else :
             res = self.lib.cutest_hprod(self.n, x, p)
