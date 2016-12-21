@@ -47,11 +47,13 @@ def compile_SIF(problem_name, sifParams):
     directory = tempfile.mkdtemp()
     os.chdir(directory) 
 
-    # Check problem name
-    if problem_name is "10FOLDTR":
-        problem_name_cython = "FOLDTR"
-    elif problem_name is "3PK":
-        problem_name_cython = "PK"
+    # Check problem name start with digit
+    if problem_name[0].isdigit():
+        ind = 1
+        while problem_name[:ind].isdigit():
+            ind += 1
+        problem_name_cython = problem_name[ind-1:]
+    # Check if problem name contains hiphen
     elif "-" in problem_name:
         ind = problem_name.find("-")
         problem_name_cython = problem_name[:ind]+problem_name[ind+1:]
