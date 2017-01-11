@@ -285,12 +285,12 @@ class CUTEstModel(NLPModel) :
         if self.m > 0 :
             if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
-            res = self.lib.cutest_chprod(self.n, self.m, x, -z, p)
             if isinstance(self.scale_con, np.ndarray):
                 z = z.copy()
                 z *= self.scale_con
                 if self.scale_obj:
                     z /= self.scale_obj
+            res = self.lib.cutest_chprod(self.n, self.m, x, -z, p)
         else :
             res = self.lib.cutest_hprod(self.n, x, p)
         if self.scale_obj:
