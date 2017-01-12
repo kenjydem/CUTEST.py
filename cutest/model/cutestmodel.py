@@ -336,6 +336,7 @@ class CUTEstModel(NLPModel) :
         if self.m == 0 :
             return np.zeros(self.n, dtype=np.double)
         if isinstance(self.scale_con, np.ndarray):
+            p = p.copy()
             p *= self.scale_con
         return self.lib.cutest_cjprod(self.n, self.m, x, p, 1)
 
