@@ -1,5 +1,6 @@
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
+from nlp.model.qnmodel import QuasiNewtonModel
 import scipy.sparse as sparse
 from cutest.tools.compile import compile_SIF
 
@@ -347,3 +348,8 @@ class CUTEstModel(NLPModel) :
         del(sys.modules[self.name])
         cmd = ['rm']+['-rf']+[self.directory]
         subprocess.call(cmd)
+
+
+class QNCUTEstModel(QuasiNewtonModel, CUTEstModel):
+    """CUTEst Model with a quasi-Newton Hessian approximation"""
+    pass
