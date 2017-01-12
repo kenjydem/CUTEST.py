@@ -22,7 +22,7 @@ elif platform == "darwin":
 elif platform == "win32":
     raise(ValueError, "Windows platforms are currently not supported")
 
-def compile_SIF(problem, sifParams):
+def compile_SIF(problem_name, sifParams):
     """Decode SIF problem and compile shared library."""
 
     cutest_config = ConfigParser.SafeConfigParser()
@@ -31,7 +31,7 @@ def compile_SIF(problem, sifParams):
     data_dir = os.path.join(os.path.dirname(cutest.__file__),'model','src')
     config_dir = os.path.join(os.path.dirname(cutest.__file__),'tools')
 
-    cutest_config.read(os.path.join(config_dir, 'site.cfg'))
+    cutest_config.read(os.path.join(config_dir, 'site.template.cfg'))
     
     default_library_dir = cutest_config.get('DEFAULT', 'library_dirs').split(os.pathsep)
     default_include_dir = cutest_config.get('DEFAULT', 'include_dirs').split(os.pathsep)
@@ -47,23 +47,37 @@ def compile_SIF(problem, sifParams):
     directory = tempfile.mkdtemp()
     os.chdir(directory) 
 
+    # Check problem name start with digit
+    if problem_name[0].isdigit():
+        ind = 1
+        while problem_name[:ind].isdigit():
+            ind += 1
+        problem_name_cython = problem_name[ind-1:]
+    # Check if problem name contains hiphen
+    elif "-" in problem_name:
+        ind = problem_name.find("-")
+        problem_name_cython = problem_name[:ind]+problem_name[ind+1:]
+    else:
+        problem_name_cython = problem_name
+
+
     # copy and paste .pxd and .pyx on the new directory 
-    source1b = [os.path.join(directory, problem+".pyx")]
-    source2b = [os.path.join(directory, problem+".pxd")]
+    source1b = [os.path.join(directory, problem_name_cython + ".pyx")]
+    source2b = [os.path.join(directory, problem_name_cython + ".pxd")]
     subprocess.call(['cp', source1a[0], source1b[0] ])
     subprocess.call(['cp', source2a[0], source2b[0] ])
 
     # Cythonize the .pyx to get the .c
-    subprocess.call(['cython', '-I', library_dirs[0][0], problem+".pyx"])
+    subprocess.call(['cython', '-I', library_dirs[0][0], problem_name_cython+".pyx"])
     
     # Problem decode
     if sifParams is None:
-        subprocess.call(['sifdecoder', problem])
+        subprocess.call(['sifdecoder', problem_name])
     else:
-        cmd = ['sifdecoder']+ [param for param in sifParams]+ [problem]
+        cmd = ['sifdecoder']+ [param for param in sifParams]+ [problem_name]
         subprocess.call(cmd)
-    
-    libname = "lib%s.%s" % (problem, soname)
+     
+    libname = "lib%s.%s" % (problem_name, soname)
     #Check if decode problem is succed
     if os.path.isfile("OUTSDIF.d") == False:
         sys.exit()
@@ -72,7 +86,7 @@ def compile_SIF(problem, sifParams):
     dat = ["OUTSDIF.d", "AUTOMAT.d"]
 
     # Create problem .o from .c
-    subprocess.call([ccompiler,"-w","-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem+".c", "-o", problem+".o"])
+    subprocess.call([ccompiler,"-w","-g","-O3","-fPIC","-I"+library_dirs[0][0], "-I"+np.get_include(),"-I"+sysconfig.get_python_inc(),"-c", problem_name_cython+".c", "-o", problem_name_cython+".o"])
 
     # Compile source files.
     exit_code = subprocess.call([fcompiler, "-c", "-fPIC"] +  [src + ".f" for src in srcs])
@@ -82,9 +96,9 @@ def compile_SIF(problem, sifParams):
 
     # Link all problem library to create the .so
     if platform == "linux" or platform == "linux2": 
-        cmd = [ccompiler] + sh_flags  + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+lib for lib in library_dirs[0]] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem +".so"]
+        cmd = [ccompiler] + sh_flags  + [problem_name_cython+".o"] + [src + ".o" for src in srcs] + ["-L"+lib for lib in library_dirs[0]] + ["-lcutest"] + ["-lgfortran"]+ ["-o"] + [problem_name_cython +".so"]
     elif platform == "darwin":
-        cmd = [ccompiler] + sh_flags + [problem+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"]+ ["-o"] + [problem +".so"]
+        cmd = [ccompiler] + sh_flags + [problem_name_cython+".o"] + [src + ".o" for src in srcs] + ["-L"+library_dirs[0][0]] + ["-lcutest"]+ ["-o"] + [problem_name_cython +".so"]
     subprocess.call(cmd)
 
     # Clean the reposite
@@ -92,6 +106,6 @@ def compile_SIF(problem, sifParams):
     
     os.chdir(cur_path)
 
-    return directory
+    return directory, problem_name_cython
 
 

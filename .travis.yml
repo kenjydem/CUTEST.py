@@ -18,6 +18,6 @@ before_install:
 
 install:
   - python setup.py install
-  - python cutest/test/test_cutest.py
+##  - python cutest/test/test_cutest.py
 
 

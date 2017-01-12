@@ -26,10 +26,10 @@ class CUTEstModel(NLPModel) :
         
         sys.path[0:0] = ['.']  # prefix current directory to list
         sifParams = kwargs.get("sifParams",None) 
-        directory = compile_SIF(name,sifParams)
+        directory, cython_lib_name = compile_SIF(name,sifParams)
         cur_dir = os.getcwd()
         os.chdir(directory)
-        cc = importlib.import_module(name)
+        cc = importlib.import_module(cython_lib_name)
         self.lib = cc.Cutest(name)
         
         prob = self.lib.loadProb("OUTSDIF.d")
