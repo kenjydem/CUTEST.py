@@ -1,5 +1,6 @@
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
+from nlp.model.qnmodel import QuasiNewtonModel
 import scipy.sparse as sparse
 from cutest.tools.compile import compile_SIF
 
@@ -285,12 +286,12 @@ class CUTEstModel(NLPModel) :
         if self.m > 0 :
             if z is None :
                 raise ValueError('the Lagrange multipliers need to be specified')
-            res = self.lib.cutest_chprod(self.n, self.m, x, -z, p)
             if isinstance(self.scale_con, np.ndarray):
                 z = z.copy()
                 z *= self.scale_con
                 if self.scale_obj:
                     z /= self.scale_obj
+            res = self.lib.cutest_chprod(self.n, self.m, x, -z, p)
         else :
             res = self.lib.cutest_hprod(self.n, x, p)
         if self.scale_obj:
@@ -336,6 +337,7 @@ class CUTEstModel(NLPModel) :
         if self.m == 0 :
             return np.zeros(self.n, dtype=np.double)
         if isinstance(self.scale_con, np.ndarray):
+            p = p.copy()
             p *= self.scale_con
         return self.lib.cutest_cjprod(self.n, self.m, x, p, 1)
 
@@ -346,3 +348,8 @@ class CUTEstModel(NLPModel) :
         del(sys.modules[self.name])
         cmd = ['rm']+['-rf']+[self.directory]
         subprocess.call(cmd)
+
+
+class QNCUTEstModel(QuasiNewtonModel, CUTEstModel):
+    """CUTEst Model with a quasi-Newton Hessian approximation"""
+    pass
