@@ -373,6 +373,10 @@ class QNCUTEstModel(QuasiNewtonModel, CUTEstModel):
     """CUTEst Model with a quasi-Newton Hessian approximation"""
     pass
 
+class SciPyCUTEstModel(SciPyNLPModel, CUTEstModel):
+    """ CUTEst Model based on Scipy Model from NLP.py """
+     pass
+
 class PySparseCUTEstModel(PySparseNLPModel, CUTEstModel):
     """ CUTEst Model based on PySparse Model from NLP.py """
     pass
