@@ -596,7 +596,7 @@ cdef class Cutest :
         CUTEST_ush(&self.status, &nvar, &x[0], &nnzh, &nnzh, &h[0],
                           &irow[0], &jcol[0])
         self.cutest_error()
-        return np.asarray(h), np.asarray(irow), np.asarray(jcol)
+        return np.asarray(irow), np.asarray(jcol), np.asarray(h)
     
 
     def __dealloc__(self):
