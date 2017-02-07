@@ -23,8 +23,8 @@ try:
     print 'Comparison of grad and sgrad...'
     try:
         g = prob.grad(x)
-        sg = prob.sgrad(x)
-        status(np.array_equal(g, np.resize(sg.todense(), g.shape)))
+        value, row = prob.sgrad(x)
+        status(np.array_equal(g, value))
     except:
         pass
     
@@ -59,8 +59,8 @@ try:
     print 'Test of hess et shess...'
     try:
         z = np.ones((prob.m,))
-        h = prob.hess(x, z)
-        sh = prob.shess(x, z)
+        h = prob.hess_dense(x)
+        sh = prob.hess(x, z)
         status(np.array_equal(h, np.resize(sh.todense(), h.shape)))
     except:
         pass
