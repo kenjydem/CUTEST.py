@@ -1,6 +1,7 @@
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
 from nlp.model.qnmodel import QuasiNewtonModel
+from nlp.model.pysparsemodel import PySparseNLPModel
 import scipy.sparse as sparse
 from cutest.tools.compile import compile_SIF
 
@@ -155,8 +156,8 @@ class CUTEstModel(NLPModel) :
             sci *= self.scale_con[i]
         return sci
             
-    def jac(self, x):
-        """  Evaluate constraints Jacobian at x """
+    def jac_dense(self, x):
+        """  Evaluate constraints Jacobian at x in dense format"""
         if self.m == 0 :
             return np.array((0,self.n), dtype=np.double)
         J = self.lib.cutest_ccfg(self.n, self.m, x)
@@ -166,7 +167,7 @@ class CUTEstModel(NLPModel) :
 
         return J
 
-    def sjac(self, x, z=None):
+    def jac(self, x, z=None):
 
         """ 
         Evaluate Jacobian in a sparse format 
@@ -189,7 +190,7 @@ class CUTEstModel(NLPModel) :
         if self.scale_obj:
             vals *= self.scale_obj
         
-        return (rows, cols, vals)
+        return (vals, rows, cols)
 
 
     def hess_dense(self, x, z=None):
@@ -240,7 +241,7 @@ class CUTEstModel(NLPModel) :
         if self.scale_obj:
             h *= self.scale_obj
 
-        return (rows, cols, vals)
+        return (vals, rows, cols)
 
     def ihess(self, x, i) : 
         """
@@ -370,4 +371,8 @@ class CUTEstModel(NLPModel) :
 
 class QNCUTEstModel(QuasiNewtonModel, CUTEstModel):
     """CUTEst Model with a quasi-Newton Hessian approximation"""
+    pass
+
+class PySparseCUTEstModel(PySparseNLPModel, CUTEstModel):
+    """ CUTEst Model based on PySparse Model from NLP.py """
     pass
