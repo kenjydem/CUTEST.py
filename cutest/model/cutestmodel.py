@@ -1,6 +1,7 @@
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
 from nlp.model.qnmodel import QuasiNewtonModel
+from nlp.model.pysparsemodel import PySparseNLPModel
 import scipy.sparse as sparse
 from cutest.tools.compile import compile_SIF
 
@@ -48,7 +49,7 @@ class CUTEstModel(NLPModel) :
 
     def obj(self,x, **kwargs):
         """ 
-        Compute  objective function and constraints at x:
+        Compute objective function and constraints at x:
         - x: Evaluated point (numpy array)
         """
         if self.m > 0:
@@ -66,7 +67,7 @@ class CUTEstModel(NLPModel) :
         - x: Evaluated point (numpy array)
         """
         if self.m > 0:
-            g = self.lib.cutest_cofg(self.n, self.m, x)
+            f, g = self.lib.cutest_cofg(self.n, self.m, x)
         else:
             g = self.lib.cutest_ugr(self.n, x)
         if self.scale_obj:
@@ -79,16 +80,15 @@ class CUTEstModel(NLPModel) :
         Gradient is returned as a sparse vector
         - x: Evaluated point (numpy array)
         """
-        if self.m == 0 :
-            print 'the problem is unconstrained : the dense gradient is return instead'
-            return  self.grad(x)
 
-        g, ir = self.lib.cutest_cofsg(self.n, x)
-        ir[ir.nonzero()] = ir[ir.nonzero()] - 1
-        sg = sparse.coo_matrix((g, (np.zeros((self.n,), dtype=int), ir)), shape=(1,self.n))
+        if self.m == 0 :
+            print 'Function unimplemented for unconstriant problem'
+        else:
+            f, (vals, rows) = self.lib.cutest_cofsg(self.n, x)
+        
         if self.scale_obj:
-            sg *= self.scale_obj
-        return sg
+            vals *= self.scale_obj
+        return (vals, rows)
 
     def cons(self, x, **kwargs):
         """
@@ -98,7 +98,8 @@ class CUTEstModel(NLPModel) :
         if self.m == 0 :
             return np.array([], dtype=np.double)
         else:
-            c = self.lib.cutest_cfn(self.n, self.m, x, 1)
+            f, c = self.lib.cutest_cfn(self.n, self.m, x, 1)
+
             if isinstance(self.scale_con, np.ndarray):
                 c *= self.scale_con
             return c
@@ -136,9 +137,11 @@ class CUTEstModel(NLPModel) :
             gi *= self.scale_con[i]
         return gi
 
-    # Evaluate i-th constraint gradient at x
-    # Gradient is returned as a sparse vector
-    def sigrad(self, i, x, **kwargs):
+    def sigrad(self, i, x):
+        """
+        Evaluate i-th constraint gradient at x
+        Gradient is returned as a sparse vector
+        """
         if self.m == 0 :
             return sparse.coo_matrix((0,self.n),dtype=np.double)
         if i > self.m :
@@ -153,16 +156,44 @@ class CUTEstModel(NLPModel) :
             sci *= self.scale_con[i]
         return sci
             
-    def jac(self, x, **kwargs):
-        """  Evaluate constraints Jacobian at x """
+    def jac_dense(self, x):
+        """  Evaluate constraints Jacobian at x in dense format"""
         if self.m == 0 :
             return np.array((0,self.n), dtype=np.double)
         J = self.lib.cutest_ccfg(self.n, self.m, x)
+
         if isinstance(self.scale_con, np.ndarray):
             J = (self.scale_con * J.T).T
+
         return J
-            
-    def hess(self, x, z=None, **kwargs):
+
+    def jac(self, x, z=None):
+
+        """ 
+        Evaluate Jacobian in a sparse format 
+
+        - x: Evaluated point (numpy array)
+        - z: Lagrange multipliers
+        """ 
+
+        if self.m > 0:
+            if z is None:
+                raise ValueError('the Lagrange multipliers need to be specified')
+            if isinstance(self.scale_con, np.ndarray):
+                z = z.copy()
+                z *= self.scale_con
+                if self.scale_obj:
+                    z /= self.scale_obj       
+
+            rows, cols, vals = self.lib.cutest_csgr(self.n, self.m, self.nnzj, x, -z)
+                            
+        if self.scale_obj:
+            vals *= self.scale_obj
+        
+        return (vals, rows, cols)
+
+
+    def hess_dense(self, x, z=None):
         """
          Evaluate Lagrangian Hessian at (x,z) if the problem is
          constrained and the Hessian of the objective function if the problem is unconstrained.
@@ -179,14 +210,15 @@ class CUTEstModel(NLPModel) :
                 z *= self.scale_con
                 if self.scale_obj:
                     z /= self.scale_obj
-            res = self.lib.cutest_cdh(self.n, self.m, x, -z)
+            hes = self.lib.cutest_cdh(self.n, self.m, x, -z)
         else :
-            res = self.lib.cutest_udh(self.n, x)
-        if self.scale_obj:
-            res *= self.scale_obj
-        return res
+            hes = self.lib.cutest_udh(self.n, x)
 
-    def shess(self, x, z=None) :
+        if self.scale_obj:
+            hes *= self.scale_obj
+        return hes
+
+    def hess(self, x, z=None) :
         """
         Evaluate the Hessian matrix of the Lagrangian, or of the objective if the problem
         is unconstrained, in sparse format
@@ -201,28 +233,15 @@ class CUTEstModel(NLPModel) :
                 z *= self.scale_con
                 if self.scale_obj:
                     z /= self.scale_obj
-            h, irow, jcol = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, -z)
+
+            rows, cols, vals = self.lib.cutest_csh(self.n, self.m, self.nnzh, x, -z)
         else:
-            h, irow, jcol = self.lib.cutest_ush(self.n, self.nnzh, x)
+            rows, cols, vals = self.lib.cutest_ush(self.n, self.nnzh, x)
         
         if self.scale_obj:
             h *= self.scale_obj
 
-        # We rebuild the matrix h from the upper triangle
-        offdiag = 0
-        for i in range(self.nnzh):
-            if irow[i] != jcol[i]:
-                k = self.nnzh + offdiag
-                irow[k] = jcol[i];
-                jcol[k] = irow[i];
-                h[k] = h[i];
-            offdiag += 1;
-        
-        h = h[irow.nonzero()]
-        irow = irow[irow.nonzero()] - 1
-        jcol = jcol[jcol.nonzero()] - 1
-
-        return sparse.coo_matrix((h, (irow, jcol)), shape=(self.n,self.n))
+        return (vals, rows, cols)
 
     def ihess(self, x, i) : 
         """
@@ -352,4 +371,12 @@ class CUTEstModel(NLPModel) :
 
 class QNCUTEstModel(QuasiNewtonModel, CUTEstModel):
     """CUTEst Model with a quasi-Newton Hessian approximation"""
+    pass
+
+class SciPyCUTEstModel(SciPyNLPModel, CUTEstModel):
+    """ CUTEst Model based on Scipy Model from NLP.py """
+     pass
+
+class PySparseCUTEstModel(PySparseNLPModel, CUTEstModel):
+    """ CUTEst Model based on PySparse Model from NLP.py """
     pass
