@@ -589,14 +589,18 @@ cdef class Cutest :
 
 
     def cutest_ush(self, int nvar, int nnzh, double[:] x) :
-        cdef double[:] h = np.zeros((2*nnzh,),dtype=np.double)
-        cdef int[:] irow = np.zeros((2*nnzh,),dtype=np.int32)
-        cdef int[:] jcol = np.zeros((2*nnzh,),dtype=np.int32)
+        cdef np.ndarray vals = np.zeros((nnzh,),dtype=np.double)
+        cdef np.ndarray rows = np.zeros((nnzh,),dtype=np.int32)
+        cdef np.ndarray cols = np.zeros((nnzh,),dtype=np.int32)
 
-        CUTEST_ush(&self.status, &nvar, &x[0], &nnzh, &nnzh, &h[0],
-                          &irow[0], &jcol[0])
+        CUTEST_ush(&self.status, &nvar, &x[0], &nnzh, &nnzh,
+                   <double *>vals.data, <int *>rows.data, <int *>cols.data)
         self.cutest_error()
-        return np.asarray(irow), np.asarray(jcol), np.asarray(h)
+
+        cols -= 1
+        rows -= 1
+
+        return (rows, cols, vals)
     
 
     def __dealloc__(self):
