@@ -359,7 +359,7 @@ cdef class Cutest :
 
      #   return g, (rows, cols, vals)
 
-    def cutest_csgr(self, int nvar, int ncon, int nnzj, double[:] x, double[:] y):
+    def cutest_csgr(self, int nvar, int ncon, int nnzj, double[:] x):
 
         """
         Evaluate Jacobian in a sparse format and gradient of either objective or Lagrangian 
@@ -370,8 +370,8 @@ cdef class Cutest :
 
         cdef int nnzmax = nnzj
 
-        CUTEST_csgr( &self.status, &nvar, &ncon, &x[0], &y[0], &self.somethingTrue, &nnzj,
-                     &nnzmax, <double *> vals.data,<int *> rows.data, <int *> cols.data );
+        CUTEST_csgr( &self.status, &nvar, &ncon, &x[0], &x[0], &self.somethingFalse, &nnzj,
+                     &nnzmax, <double *> vals.data,<int *> cols.data, <int *> rows.data );
 
         cols -= 1
         rows -= 1

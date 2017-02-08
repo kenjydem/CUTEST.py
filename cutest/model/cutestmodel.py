@@ -1,6 +1,7 @@
 import os, sys, importlib, subprocess, numpy as np
 from nlp.model.nlpmodel import NLPModel
 from nlp.model.qnmodel import QuasiNewtonModel
+from nlp.model.scipymodel import SciPyNLPModel
 from nlp.model.pysparsemodel import PySparseNLPModel
 import scipy.sparse as sparse
 from cutest.tools.compile import compile_SIF
@@ -157,7 +158,7 @@ class CUTEstModel(NLPModel) :
         return sci
             
     def jac_dense(self, x):
-        """  Evaluate constraints Jacobian at x in dense format"""
+        """Evaluate constraints Jacobian at x in dense format"""
         if self.m == 0 :
             return np.array((0,self.n), dtype=np.double)
         J = self.lib.cutest_ccfg(self.n, self.m, x)
@@ -167,28 +168,16 @@ class CUTEstModel(NLPModel) :
 
         return J
 
-    def jac(self, x, z=None):
-
-        """ 
-        Evaluate Jacobian in a sparse format 
-
-        - x: Evaluated point (numpy array)
-        - z: Lagrange multipliers
-        """ 
-
-        if self.m > 0:
-            if z is None:
-                raise ValueError('the Lagrange multipliers need to be specified')
+    def jac(self, x):
+        """Evaluate Jacobian at x in sparse format"""
+        if self.m == 0:
+            vals = np.array(0, dtype=np.double)
+            rows = np.array(0, dtype=np.int32)
+            cols = np.array(0, dtype=np.int32)
+        else:
+            rows, cols, vals = self.lib.cutest_csgr(self.n, self.m, self.nnzj, x)
             if isinstance(self.scale_con, np.ndarray):
-                z = z.copy()
-                z *= self.scale_con
-                if self.scale_obj:
-                    z /= self.scale_obj       
-
-            rows, cols, vals = self.lib.cutest_csgr(self.n, self.m, self.nnzj, x, -z)
-                            
-        if self.scale_obj:
-            vals *= self.scale_obj
+                vals *= self.scale_con[rows]
         
         return (vals, rows, cols)
 
@@ -375,7 +364,7 @@ class QNCUTEstModel(QuasiNewtonModel, CUTEstModel):
 
 class SciPyCUTEstModel(SciPyNLPModel, CUTEstModel):
     """ CUTEst Model based on Scipy Model from NLP.py """
-     pass
+    pass
 
 class PySparseCUTEstModel(PySparseNLPModel, CUTEstModel):
     """ CUTEst Model based on PySparse Model from NLP.py """
