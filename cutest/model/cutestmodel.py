@@ -228,7 +228,7 @@ class CUTEstModel(NLPModel) :
             rows, cols, vals = self.lib.cutest_ush(self.n, self.nnzh, x)
         
         if self.scale_obj:
-            h *= self.scale_obj
+            vals *= self.scale_obj
 
         return (vals, rows, cols)
 
