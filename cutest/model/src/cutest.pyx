@@ -359,7 +359,7 @@ cdef class Cutest :
 
      #   return g, (rows, cols, vals)
 
-    def cutest_csgr(self, int nvar, int ncon, int nnzj, double[:] x, double[:] y):
+    def cutest_csgr(self, int nvar, int ncon, int nnzj, double[:] x):
 
         """
         Evaluate Jacobian in a sparse format and gradient of either objective or Lagrangian 
@@ -370,8 +370,8 @@ cdef class Cutest :
 
         cdef int nnzmax = nnzj
 
-        CUTEST_csgr( &self.status, &nvar, &ncon, &x[0], &y[0], &self.somethingTrue, &nnzj,
-                     &nnzmax, <double *> vals.data,<int *> rows.data, <int *> cols.data );
+        CUTEST_csgr( &self.status, &nvar, &ncon, &x[0], &x[0], &self.somethingFalse, &nnzj,
+                     &nnzmax, <double *> vals.data,<int *> cols.data, <int *> rows.data );
 
         cols -= 1
         rows -= 1
@@ -589,14 +589,18 @@ cdef class Cutest :
 
 
     def cutest_ush(self, int nvar, int nnzh, double[:] x) :
-        cdef double[:] h = np.zeros((2*nnzh,),dtype=np.double)
-        cdef int[:] irow = np.zeros((2*nnzh,),dtype=np.int32)
-        cdef int[:] jcol = np.zeros((2*nnzh,),dtype=np.int32)
+        cdef np.ndarray vals = np.zeros((nnzh,),dtype=np.double)
+        cdef np.ndarray rows = np.zeros((nnzh,),dtype=np.int32)
+        cdef np.ndarray cols = np.zeros((nnzh,),dtype=np.int32)
 
-        CUTEST_ush(&self.status, &nvar, &x[0], &nnzh, &nnzh, &h[0],
-                          &irow[0], &jcol[0])
+        CUTEST_ush(&self.status, &nvar, &x[0], &nnzh, &nnzh,
+                   <double *>vals.data, <int *>rows.data, <int *>cols.data)
         self.cutest_error()
-        return np.asarray(irow), np.asarray(jcol), np.asarray(h)
+
+        cols -= 1
+        rows -= 1
+
+        return (rows, cols, vals)
     
 
     def __dealloc__(self):
