@@ -17,6 +17,9 @@ before_install:
   - pip install -q numpy
 
 install:
+  - echo "[DEFAULT]" > cutest/tools/site.cfg
+  - echo "library_dirs = $(brew --prefix)/lib" > cutest/tools/site.cfg
+  - echo "include_dirs = $(brew --prefix)/include" > cutest/tools/site.cfg
   - python setup.py install
 ##  - python cutest/test/test_cutest.py
 

@@ -1,5 +1,7 @@
 # CUTEST.py: Python's CUTEst Interface
 
+[![Build Status](https://travis-ci.org/kenjydem/CUTEST.py.svg?branch=master)](https://travis-ci.org/kenjydem/CUTEST.py)
+
 `CUTEST.py` is a Python interface package for modeling and solving optimization problems from CUTEst collection.
 
 ## Dependencies
