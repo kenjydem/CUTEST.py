@@ -15,7 +15,7 @@
    git clone https://github.com/PythonOptimizers/NLP.py
    ```
 
-2. Check and modify if you need 'site.cfg' in the folder 'cutest.tools'
+2. In the folder `cutest/tools`, copy `site.template.cfg` to `site.cfg` and modify to your needs.
 
 3. Install:
 ```bash
