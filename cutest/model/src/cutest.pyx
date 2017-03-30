@@ -277,19 +277,19 @@ cdef class Cutest :
         self.cutest_error()
         
         # Modify infinity value for np.inf in Uvar
-        ind = np.where(bu==1e+20)[0]
+        ind = np.where(bu>=1e+20)[0]
         bu[ind] = np.inf
 
         # Modify infinity value for -np.inf in Lvar
-        ind = np.where(bl==-1e+20)[0]        
+        ind = np.where(bl<=-1e+20)[0]        
         bl[ind] = -np.inf
  
         # Modify infinity value for np.inf in Ucon
-        ind = np.where(cu==1e+20)[0]
+        ind = np.where(cu>=1e+20)[0]
         cu[ind] = np.inf
 
         # Modify infinity value for -np.inf in Lcon
-        ind = np.where(cl==-1e+20)[0]
+        ind = np.where(cl<=-1e+20)[0]
         cl[ind] = -np.inf
 
         lin = np.where(linear==1)[0]
