@@ -1,5 +1,7 @@
 # CUTEST.py: Python's CUTEst Interface
 
+[![Build Status](https://travis-ci.org/kenjydem/CUTEST.py.svg?branch=master)](https://travis-ci.org/kenjydem/CUTEST.py)
+
 `CUTEST.py` is a Python interface package for modeling and solving optimization problems from CUTEst collection.
 
 ## Dependencies
@@ -15,7 +17,7 @@
    git clone https://github.com/PythonOptimizers/NLP.py
    ```
 
-2. Check and modify if you need 'site.cfg' in the folder 'cutest.tools'
+2. In the folder `cutest/tools`, copy `site.template.cfg` to `site.cfg` and modify to your needs.
 
 3. Install:
 ```bash
